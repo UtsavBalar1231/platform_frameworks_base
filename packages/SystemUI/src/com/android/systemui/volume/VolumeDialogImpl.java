@@ -69,6 +69,8 @@ import android.util.SparseBooleanArray;
 import android.view.ContextThemeWrapper;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.widget.LinearLayout;
+
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.AccessibilityDelegate;
@@ -524,23 +526,6 @@ public class VolumeDialogImpl implements VolumeDialog,
     }
 
     public void initSettingsH() {
-        if (mMediaOutputView != null) {
-            mMediaOutputView.setVisibility(
-                    mDeviceProvisionedController.isCurrentUserSetup() &&
-                            mActivityManager.getLockTaskModeState() == LOCK_TASK_MODE_NONE &&
-                            isBluetoothA2dpConnected() ? VISIBLE : GONE);
-        }
-        if (mMediaOutputIcon != null) {
-            mMediaOutputIcon.setOnClickListener(v -> {
-                rescheduleTimeoutH();
-                Events.writeEvent(mContext, Events.EVENT_SETTINGS_CLICK);
-                Intent intent = new Intent(ACTION_MEDIA_OUTPUT);
-                dismissH(DISMISS_REASON_SETTINGS_CLICKED);
-                Dependency.get(ActivityStarter.class).startActivity(intent,
-                        true /* dismissShade */);
-            });
-        }
-
         if (mAllyStream == -1) {
             mAllyStream = mActiveStream;
         }
@@ -567,15 +552,6 @@ public class VolumeDialogImpl implements VolumeDialog,
                     Util.setVisOrGone(findRow(AudioManager.STREAM_MUSIC).view,
                             !mExpanded);
                 }
-                Util.setVisOrGone(findRow(AudioManager.STREAM_RING).view, !mExpanded);
-                Util.setVisOrGone(findRow(STREAM_ALARM).view, !mExpanded);
-                if (!isNotificationVolumeLinked()) {
-                    Util.setVisOrGone(
-                            findRow(AudioManager.STREAM_NOTIFICATION).view, !mExpanded);
-                }
-
-                if (mExpanded) mController.setActiveStream(mAllyStream);
-                mExpandRows.setExpanded(!mExpanded);
                 mExpanded = !mExpanded;
             });
         }
