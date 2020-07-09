@@ -776,7 +776,7 @@ public class VolumeDialogImpl implements VolumeDialog,
         mDialog.getViewTreeObserver().addOnComputeInternalInsetsListener(mInsetsListener);
 
         if (!mShowing && !mDialog.isShown()) {
-            if (!isLandscape()) mDialogView.setTranslationX((mDialogView.getWidth() / 2.0f)*(mVolumePanelOnLeft ? -1 : 1));
+            if (!isLandscape()) mDialogView.setTranslationX((mDialogView.getWidth() / 2.0f));
             mDialogView.setAlpha(0);
             mDialogView.animate()
                     .alpha(1)
