@@ -301,7 +301,7 @@ public class CameraServiceProxy extends SystemService
                     mAlertDialog.getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_ERROR);
                     mAlertDialog.setCanceledOnTouchOutside(false);
                 }
-                if (mKeyguardManager.isKeyguardLocked() {
+                if (mKeyguardManager.isKeyguardLocked()) {
                     mAlertDialog.show();
                 } else {
                     sendCameraStateIntent("1");
