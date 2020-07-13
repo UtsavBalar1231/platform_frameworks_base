@@ -2538,6 +2538,9 @@ public final class BluetoothAdapter {
         } else if (profile == BluetoothProfile.PAN) {
             BluetoothPan pan = new BluetoothPan(context, listener);
             return true;
+        } else if (profile == BluetoothProfile.DUN) {
+            BluetoothDun dun = new BluetoothDun(context, listener);
+            return true;
         } else if (profile == BluetoothProfile.HEALTH) {
             Log.e(TAG, "getProfileProxy(): BluetoothHealth is deprecated");
             return false;
@@ -2610,6 +2613,10 @@ public final class BluetoothAdapter {
                 BluetoothPan pan = (BluetoothPan) proxy;
                 pan.close();
                 break;
+            case BluetoothProfile.DUN:
+                BluetoothDun dun = (BluetoothDun)proxy;
+                dun.close();
+                break;
             case BluetoothProfile.GATT:
                 BluetoothGatt gatt = (BluetoothGatt) proxy;
                 gatt.close();
@@ -2645,6 +2652,7 @@ public final class BluetoothAdapter {
             case BluetoothProfile.HEARING_AID:
                 BluetoothHearingAid hearingAid = (BluetoothHearingAid) proxy;
                 hearingAid.close();
+                break;
         }
     }
 
@@ -2706,6 +2714,8 @@ public final class BluetoothAdapter {
                     }
 
                     synchronized (mProxyServiceStateCallbacks) {
+                        Log.d(TAG, "onBluetoothServiceDown: Sending callbacks to " +
+                                    mProxyServiceStateCallbacks.size() + " clients");
                         for (IBluetoothManagerCallback cb : mProxyServiceStateCallbacks) {
                             try {
                                 if (cb != null) {
@@ -2718,6 +2728,7 @@ public final class BluetoothAdapter {
                             }
                         }
                     }
+                    Log.d(TAG, "onBluetoothServiceDown: Finished sending callbacks to registered clients");
                 }
 
                 public void onBrEdrDown() {

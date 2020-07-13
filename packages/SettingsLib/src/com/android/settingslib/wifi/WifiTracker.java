@@ -570,10 +570,18 @@ public class WifiTracker implements LifecycleObserver, OnStart, OnStop, OnDestro
             final List<NetworkKey> scoresToRequest = new ArrayList<>();
 
             for (Map.Entry<String, List<ScanResult>> entry : scanResultsByApKey.entrySet()) {
+                boolean isOweTransition = false;
+                boolean isSaeTransition = false;
                 for (ScanResult result : entry.getValue()) {
                     NetworkKey key = NetworkKey.createFromScanResult(result);
                     if (key != null && !mRequestedScores.contains(key)) {
                         scoresToRequest.add(key);
+                    }
+                    if (AccessPoint.checkForOweTransitionMode(result)) {
+                        isOweTransition = true;
+                    }
+                    if (AccessPoint.checkForSaeTransitionMode(result)) {
+                        isSaeTransition = true;
                     }
                 }
 
@@ -871,6 +879,7 @@ public class WifiTracker implements LifecycleObserver, OnStart, OnStop, OnDestro
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
+            sVerboseLogging = (mWifiManager.getVerboseLoggingLevel() > 0);
 
             if (WifiManager.WIFI_STATE_CHANGED_ACTION.equals(action)) {
                 updateWifiState(

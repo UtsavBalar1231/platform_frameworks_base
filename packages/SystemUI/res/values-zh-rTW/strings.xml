@@ -182,7 +182,7 @@
     <string name="data_connection_5g" msgid="6268379449490425462">"5G"</string>
     <string name="data_connection_5g_plus" msgid="2926653195193324466">"5G+"</string>
     <string name="data_connection_cdma" msgid="7678457855627313518">"1X"</string>
-    <string name="data_connection_roaming" msgid="375650836665414797">"漫遊"</string>
+    <string name="data_connection_roaming" msgid="375650836665414797">"數據漫遊"</string>
     <string name="data_connection_edge" msgid="6316755666481405762">"EDGE"</string>
     <string name="accessibility_data_connection_wifi" msgid="4422160347472742434">"Wi-Fi"</string>
     <string name="accessibility_no_sim" msgid="1140839832913084973">"沒有 SIM 卡。"</string>

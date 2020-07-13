@@ -16,6 +16,10 @@
 
 package com.android.server.connectivity;
 
+import static android.net.NetworkCapabilities.NET_CAPABILITY_INTERNET;
+import static android.net.NetworkCapabilities.NET_CAPABILITY_MMS;
+import static android.net.NetworkCapabilities.NET_CAPABILITY_VALIDATED;
+
 import android.content.Context;
 import android.net.IDnsResolver;
 import android.net.INetd;

@@ -64,14 +64,11 @@ public class ApkSignatureVerifier {
     private static final AtomicReference<byte[]> sBuffer = new AtomicReference<>();
 
     private static final String TAG = "ApkSignatureVerifier";
-
-    private static BoostFramework sPerfBoost = null;
-    private static boolean sIsPerfLockAcquired = false;
-
     // multithread verification
     private static final int NUMBER_OF_CORES =
             Runtime.getRuntime().availableProcessors() >= 4 ? 4 : Runtime.getRuntime().availableProcessors() ;
-
+    private static BoostFramework sPerfBoost = null;
+    private static boolean sIsPerfLockAcquired = false;
     /**
      * Verifies the provided APK and returns the certificates associated with each signer.
      *

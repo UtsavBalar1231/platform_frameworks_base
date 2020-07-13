@@ -3964,6 +3964,7 @@ public class StatusBar extends SystemUI implements DemoMode,
 
         @Override
         public void onScreenTurnedOff() {
+            updateDozing();
             mFalsingManager.onScreenOff();
             mScrimController.onScreenTurnedOff();
             updateIsKeyguard();
@@ -4206,6 +4207,8 @@ public class StatusBar extends SystemUI implements DemoMode,
                 DozeLog.traceDozing(mContext, mDozing);
                 updateDozing();
                 updateIsKeyguard();
+            }else{
+                mDozingRequested = true;
             }
         }
 
@@ -4232,6 +4235,7 @@ public class StatusBar extends SystemUI implements DemoMode,
             // execute the transition. The pulse callback will then be invoked when the scrims
             // are black, indicating that StatusBar is ready to present the rest of the UI.
             mPulsing = true;
+            mNotificationPanel.setPulseReason(reason);
             mDozeScrimController.pulse(new PulseCallback() {
                 @Override
                 public void onPulseStarted() {

@@ -115,8 +115,13 @@ public abstract class AbsListView extends AdapterView<ListAdapter> implements Te
 
     @SuppressWarnings("UnusedDeclaration")
     private static final String TAG = "AbsListView";
+<<<<<<< HEAD
     private static final boolean OPTS_INPUT = SystemProperties.getBoolean("persist.vendor.qti.inputopts.enable",false);
     private static final String MOVE_TOUCH_SLOP = SystemProperties.get("persist.vendor.qti.inputopts.movetouchslop","0.6");
+=======
+    private static final boolean OPTS_INPUT = true;
+    private static final double MOVE_TOUCH_SLOP = 0.6;
+>>>>>>> 2e8a303970e6c857b973b5184a6d293d0c4d31f9
     private static final double TOUCH_SLOP_MIN = 0.6;
     private static final double TOUCH_SLOP_MAX = 1.0;
 
@@ -936,7 +941,11 @@ public abstract class AbsListView extends AdapterView<ListAdapter> implements Te
         mTouchSlop = configuration.getScaledTouchSlop();
         mVerticalScrollFactor = configuration.getScaledVerticalScrollFactor();
         if (OPTS_INPUT) {
+<<<<<<< HEAD
             double touchslopprop = Double.parseDouble(MOVE_TOUCH_SLOP);
+=======
+            double touchslopprop = MOVE_TOUCH_SLOP;
+>>>>>>> 2e8a303970e6c857b973b5184a6d293d0c4d31f9
             if (touchslopprop > 0) {
                 if (touchslopprop < TOUCH_SLOP_MIN) {
                     mMoveAcceleration = (int)(mTouchSlop * TOUCH_SLOP_MIN);
@@ -4165,6 +4174,11 @@ public abstract class AbsListView extends AdapterView<ListAdapter> implements Te
                                 }
                                 mSelector.setHotspot(x, ev.getY());
                             }
+                            if (!mDataChanged && !mIsDetaching && isAttachedToWindow()) {
+                                if (!post(performClick)) {
+                                    performClick.run();
+                                }
+                            }
                             if (mTouchModeReset != null) {
                                 removeCallbacks(mTouchModeReset);
                             }
@@ -4175,9 +4189,6 @@ public abstract class AbsListView extends AdapterView<ListAdapter> implements Te
                                     mTouchMode = TOUCH_MODE_REST;
                                     child.setPressed(false);
                                     setPressed(false);
-                                    if (!mDataChanged && !mIsDetaching && isAttachedToWindow()) {
-                                        performClick.run();
-                                    }
                                 }
                             };
                             postDelayed(mTouchModeReset,

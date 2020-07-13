@@ -39,6 +39,8 @@ import com.android.settingslib.WirelessUtils;
 import com.android.systemui.Dependency;
 import com.android.systemui.R;
 import com.android.systemui.keyguard.WakefulnessLifecycle;
+import com.android.systemui.statusbar.policy.FiveGServiceClient;
+import com.android.systemui.statusbar.policy.FiveGServiceClient.FiveGServiceState;
 
 import java.util.List;
 import java.util.Objects;
@@ -67,6 +69,9 @@ public class CarrierTextController {
     private Context mContext;
     private CharSequence mSeparator;
     private WakefulnessLifecycle mWakefulnessLifecycle;
+    @VisibleForTesting
+    protected boolean mDisplayOpportunisticSubscriptionCarrierText;
+    private FiveGServiceClient mFiveGServiceClient;
     private final WakefulnessLifecycle.Observer mWakefulnessObserver =
             new WakefulnessLifecycle.Observer() {
                 @Override
@@ -250,11 +255,15 @@ public class CarrierTextController {
     protected void updateCarrierText() {
         boolean allSimsMissing = true;
         boolean anySimReadyAndInService = false;
+        boolean missingSimsWithSubs = false;
+        boolean showCustomizeName = getContext().getResources().getBoolean(
+                com.android.systemui.R.bool.config_show_customize_carrier_name);
         CharSequence displayText = null;
         List<SubscriptionInfo> subs = getSubscriptionInfo();
 
         final int numSubs = subs.size();
         final int[] subsIds = new int[numSubs];
+        if (DEBUG) Log.d(TAG, "updateCarrierText(): " + numSubs);
         // This array will contain in position i, the index of subscription in slot ID i.
         // -1 if no subscription in that slot
         final int[] subOrderBySlot = new int[mSimSlotsNumber];
@@ -271,6 +280,9 @@ public class CarrierTextController {
             subOrderBySlot[subs.get(i).getSimSlotIndex()] = i;
             IccCardConstants.State simState = mKeyguardUpdateMonitor.getSimState(subId);
             CharSequence carrierName = subs.get(i).getCarrierName();
+            if ( showCustomizeName ) {
+                carrierName = getCustomizeCarrierName(carrierName, subs.get(i));
+            }
             CharSequence carrierTextForSimState = getCarrierTextForSimState(simState, carrierName);
             if (DEBUG) {
                 Log.d(TAG, "Handling (subId=" + subId + "): " + simState + " " + carrierName);
@@ -286,8 +298,8 @@ public class CarrierTextController {
                     // Wi-Fi is disassociated or disabled
                     if (ss.getRilDataRadioTechnology() != ServiceState.RIL_RADIO_TECHNOLOGY_IWLAN
                             || (mWifiManager.isWifiEnabled()
-                            && mWifiManager.getConnectionInfo() != null
-                            && mWifiManager.getConnectionInfo().getBSSID() != null)) {
+                                    && mWifiManager.getConnectionInfo() != null
+                                    && mWifiManager.getConnectionInfo().getBSSID() != null)) {
                         if (DEBUG) {
                             Log.d(TAG, "SIM ready and in service: subId=" + subId + ", ss=" + ss);
                         }
@@ -306,7 +318,7 @@ public class CarrierTextController {
                 // "No SIM card"
                 // Grab the first subscripton, because they all should contain the emergency text,
                 // described above.
-                displayText = makeCarrierStringOnEmergencyCapable(
+                displayText =  makeCarrierStringOnEmergencyCapable(
                         getMissingSimMessage(), subs.get(0).getCarrierName());
             } else {
                 // We don't have a SubscriptionInfo to get the emergency calls only from.
@@ -333,7 +345,7 @@ public class CarrierTextController {
                         text = concatenate(plmn, spn, mSeparator);
                     }
                 }
-                displayText = makeCarrierStringOnEmergencyCapable(getMissingSimMessage(), text);
+                displayText =  makeCarrierStringOnEmergencyCapable(getMissingSimMessage(), text);
             }
         }
 
@@ -632,5 +644,119 @@ public class CarrierTextController {
          * Notifies the View that the device finished waking up
          */
         default void finishedWakingUp() {};
+    }
+
+    private String getCustomizeCarrierName(CharSequence originCarrierName,
+                                           SubscriptionInfo sub) {
+        StringBuilder newCarrierName = new StringBuilder();
+        int networkType = getNetworkType(sub.getSubscriptionId());
+        String networkClass = networkClassToString(TelephonyManager.getNetworkClass(networkType));
+
+        String fiveGNetworkClass = get5GNetworkClass(sub, networkType);
+        if ( fiveGNetworkClass != null ) {
+            networkClass = fiveGNetworkClass;
+        }
+
+        if (!TextUtils.isEmpty(originCarrierName)) {
+            String[] names = originCarrierName.toString().split(mSeparator.toString(), 2);
+            for (int j = 0; j < names.length; j++) {
+                names[j] = getLocalString(
+                        names[j], com.android.systemui.R.array.origin_carrier_names,
+                        com.android.systemui.R.array.locale_carrier_names);
+                if (!TextUtils.isEmpty(names[j])) {
+                    if (!TextUtils.isEmpty(networkClass)) {
+                        names[j] = new StringBuilder().append(names[j]).append(" ")
+                                .append(networkClass).toString();
+                    }
+                    if (j > 0 && names[j].equals(names[j - 1])) {
+                        continue;
+                    }
+                    if (j > 0) {
+                        newCarrierName.append(mSeparator);
+                    }
+                    newCarrierName.append(names[j]);
+                }
+            }
+        }
+        return newCarrierName.toString();
+    }
+
+    private int getNetworkType(int subId) {
+        int networkType = TelephonyManager.NETWORK_TYPE_UNKNOWN;
+        ServiceState ss = mKeyguardUpdateMonitor.mServiceStates.get(subId);
+        if (ss != null && (ss.getDataRegState() == ServiceState.STATE_IN_SERVICE
+                || ss.getVoiceRegState() == ServiceState.STATE_IN_SERVICE)) {
+            networkType = ss.getDataNetworkType();
+            if (networkType == TelephonyManager.NETWORK_TYPE_UNKNOWN) {
+                networkType = ss.getVoiceNetworkType();
+            }
+        }
+        return networkType;
+    }
+
+    private String networkClassToString (int networkClass) {
+        final int[] classIds = {
+            com.android.systemui.R.string.config_rat_unknown,
+            com.android.systemui.R.string.config_rat_2g,
+            com.android.systemui.R.string.config_rat_3g,
+            com.android.systemui.R.string.config_rat_4g };
+        String classString = null;
+        if (networkClass < classIds.length) {
+            classString = getContext().getResources().getString(classIds[networkClass]);
+        }
+        return (classString == null) ? "" : classString;
+    }
+
+    /**
+     * parse the string to current language.
+     *
+     * @param originalString original string
+     * @param originNamesId the id of the original string array.
+     * @param localNamesId the id of the local string keys.
+     * @return local language string
+     */
+    private String getLocalString(String originalString,
+            int originNamesId, int localNamesId) {
+        String[] origNames = getContext().getResources().getStringArray(originNamesId);
+        String[] localNames = getContext().getResources().getStringArray(localNamesId);
+        for (int i = 0; i < origNames.length; i++) {
+            if (origNames[i].equalsIgnoreCase(originalString)) {
+                return localNames[i];
+            }
+        }
+        return originalString;
+    }
+
+    private String get5GNetworkClass(SubscriptionInfo sub, int networkType) {
+        if ( networkType == TelephonyManager.NETWORK_TYPE_NR ) {
+            return mContext.getResources().getString(R.string.data_connection_5g);
+        }
+
+        int slotIndex = sub.getSimSlotIndex();
+        int subId = sub.getSubscriptionId();
+
+        if ( mFiveGServiceClient == null ) {
+            mFiveGServiceClient = FiveGServiceClient.getInstance(mContext);
+            mFiveGServiceClient.registerCallback(mCallback);
+        }
+        FiveGServiceState fiveGServiceState =
+                mFiveGServiceClient.getCurrentServiceState(slotIndex);
+        if ( fiveGServiceState.isNrIconTypeValid() && isDataRegisteredOnLte(subId)) {
+            return mContext.getResources().getString(R.string.data_connection_5g);
+        }
+
+        return null;
+    }
+
+    private boolean isDataRegisteredOnLte(int subId) {
+        TelephonyManager telephonyManager = (TelephonyManager)
+                mContext.getSystemService(Context.TELEPHONY_SERVICE);
+        int dataType = telephonyManager.getDataNetworkType(subId);
+        if (  dataType == TelephonyManager.NETWORK_TYPE_LTE ||
+                dataType == TelephonyManager.NETWORK_TYPE_LTE_CA) {
+            return true;
+        }else{
+            return false;
+        }
     }
 }

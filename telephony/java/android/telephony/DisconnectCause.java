@@ -353,12 +353,6 @@ public final class DisconnectCause {
      */
     public static final int WFC_SERVICE_NOT_AVAILABLE_IN_THIS_LOCATION = 79;
 
-    //*********************************************************************************************
-    // When adding a disconnect type:
-    // 1) Update toString() with the newly added disconnect type.
-    // 2) Update android.telecom.DisconnectCauseUtil with any mappings to a telecom.DisconnectCause.
-    //*********************************************************************************************
-
     /** @hide */
     public static final int QOS_UNAVAILABLE = 80;
     /** @hide */
@@ -462,7 +456,7 @@ public final class DisconnectCause {
     // 4) Update toString() with the newly added disconnect type.
     // 5) Update android.telecom.DisconnectCauseUtil with any mappings to a telecom.DisconnectCause.
     //
-    // NextId: 124
+    // NextId: 125
     //*********************************************************************************************
 
     /**

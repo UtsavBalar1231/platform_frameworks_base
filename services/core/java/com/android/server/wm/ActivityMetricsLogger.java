@@ -1,5 +1,6 @@
 package com.android.server.wm;
 
+import android.app.ActivityManager;
 import static android.app.ActivityManager.START_SUCCESS;
 import static android.app.ActivityManager.START_TASK_TO_FRONT;
 import static android.app.ActivityManager.processStateAmToProto;
@@ -408,7 +409,7 @@ class ActivityMetricsLogger {
 
         final boolean otherWindowModesLaunching =
                 mWindowingModeTransitionInfo.size() > 0 && info == null;
-        if ((!isLoggableResultCode(resultCode) || launchedActivity == null || !processSwitch
+        if ((!isLoggableResultCode(resultCode) || launchedActivity == null
                 || windowingMode == WINDOWING_MODE_UNDEFINED) && !otherWindowModesLaunching) {
             // Failed to launch or it was not a process switch, so we don't care about the timing.
             reset(true /* abort */, info, "failed to launch or not a process switch");
@@ -791,8 +792,15 @@ class ActivityMetricsLogger {
 
         Log.i(TAG, sb.toString());
 
-        int isGame = mLaunchedActivity.isAppInfoGame();
         if (mUxPerf !=  null) {
+            int isGame;
+
+            if (ActivityManager.isLowRamDeviceStatic()) {
+                isGame = mLaunchedActivity.isAppInfoGame();
+            } else {
+                isGame = (mUxPerf.perfGetFeedback(BoostFramework.VENDOR_FEEDBACK_WORKLOAD_TYPE,
+                                        mLaunchedActivity.packageName) == BoostFramework.WorkloadType.GAME) ? 1 : 0;
+            }
             mUxPerf.perfUXEngine_events(BoostFramework.UXE_EVENT_GAME, 0, info.packageName, isGame);
         }
 

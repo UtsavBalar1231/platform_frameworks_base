@@ -394,7 +394,7 @@ final class ActivityManagerConstants extends ContentObserver {
         if(USE_TRIM_SETTINGS && allowTrim()) {
             return totalProcessLimit*EMPTY_APP_PERCENT/100;
         } else {
-        return totalProcessLimit/2;
+            return totalProcessLimit/2;
         }
     }
 
@@ -555,7 +555,6 @@ final class ActivityManagerConstants extends ContentObserver {
         // to consider the same level the point where we do trimming regardless of any
         // additional enforced limit.
         final int rawMaxEmptyProcesses = computeEmptyProcessLimit(MAX_CACHED_PROCESSES);
-        CUR_TRIM_EMPTY_PROCESSES = rawMaxEmptyProcesses/2;
         CUR_TRIM_EMPTY_PROCESSES = computeTrimEmptyApps(rawMaxEmptyProcesses);
         CUR_TRIM_CACHED_PROCESSES =
                 computeTrimCachedApps(rawMaxEmptyProcesses, MAX_CACHED_PROCESSES);

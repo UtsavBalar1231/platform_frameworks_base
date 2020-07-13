@@ -498,7 +498,8 @@ public class NotificationShelf extends ActivatableNotificationView implements
         if (mAmbientState.isPulseExpanding()) {
             shouldClipOwnTop = childIndex == 0;
         } else {
-            shouldClipOwnTop = row.showingPulsing();
+            shouldClipOwnTop = row.showingPulsing() && !mAmbientState.isFullyHidden();
+
         }
         if (viewEnd > notificationClipEnd && !shouldClipOwnTop
                 && (mAmbientState.isShadeExpanded() || !isPinned)) {
@@ -738,10 +739,11 @@ public class NotificationShelf extends ActivatableNotificationView implements
                 iconState.scaleY = 1.0f;
                 iconState.hidden = false;
             }
-            if (row.isAboveShelf()
+            if ((row.isAboveShelf()
                     || row.showingPulsing()
                     || (!row.isInShelf() && (isLastChild && row.areGutsExposed()
-                    || row.getTranslationZ() > mAmbientState.getBaseZHeight()))) {
+                    || row.getTranslationZ() > mAmbientState.getBaseZHeight())))
+                        && !mAmbientState.isFullyHidden()) {
                 iconState.hidden = true;
             }
             int backgroundColor = getBackgroundColorWithoutTint();

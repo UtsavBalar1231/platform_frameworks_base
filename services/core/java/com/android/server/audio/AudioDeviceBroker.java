@@ -206,6 +206,9 @@ import com.android.internal.annotations.GuardedBy;
             }
 
             mForcedUseForCommExt = mForcedUseForComm;
+            if (AudioService.DEBUG_SCO) {
+                Log.i(TAG, "In setSpeakerphoneOn(), mForcedUseForCommExt: " + mForcedUseForCommExt);
+            }
             setForceUse_Async(AudioSystem.FOR_COMMUNICATION, mForcedUseForComm, eventSource);
             return (wasOn != isSpeakerphoneOn());
         }
@@ -213,6 +216,9 @@ import com.android.internal.annotations.GuardedBy;
 
     /*package*/ boolean isSpeakerphoneOn() {
         synchronized (mDeviceStateLock) {
+            if (AudioService.DEBUG_SCO) {
+                Log.i(TAG, "In isSpeakerphoneOn(), mForcedUseForCommExt: " +mForcedUseForCommExt);
+            }
             return (mForcedUseForCommExt == AudioSystem.FORCE_SPEAKER);
         }
     }
@@ -318,30 +324,51 @@ import com.android.internal.annotations.GuardedBy;
     // never called by system components
     /*package*/ void setBluetoothScoOnByApp(boolean on) {
         synchronized (mDeviceStateLock) {
-            mForcedUseForCommExt = on ? AudioSystem.FORCE_BT_SCO : AudioSystem.FORCE_NONE;
+            if (on)
+                mForcedUseForCommExt = AudioSystem.FORCE_BT_SCO;
+            else if (mForcedUseForCommExt == AudioSystem.FORCE_BT_SCO)
+                mForcedUseForCommExt = AudioSystem.FORCE_NONE;
+            if (AudioService.DEBUG_SCO) {
+                Log.i(TAG, "In setBluetoothScoOnByApp(), mForcedUseForCommExt: " +
+                      mForcedUseForCommExt);
+            }
         }
     }
 
     /*package*/ boolean isBluetoothScoOnForApp() {
         synchronized (mDeviceStateLock) {
+            if (AudioService.DEBUG_SCO) {
+                Log.i(TAG, "In isBluetoothScoOnForApp(), mForcedUseForCommExt: " +
+                      mForcedUseForCommExt);
+            }
             return mForcedUseForCommExt == AudioSystem.FORCE_BT_SCO;
         }
     }
 
     /*package*/ void setBluetoothScoOn(boolean on, String eventSource) {
-        //Log.i(TAG, "setBluetoothScoOnInt: " + on + " " + eventSource);
+        if (AudioService.DEBUG_SCO) {
+            Log.i(TAG, "setBluetoothScoOn: " + on + " " + eventSource);
+        }
         synchronized (mDeviceStateLock) {
             if (on) {
                 // do not accept SCO ON if SCO audio is not connected
                 if (!mBtHelper.isBluetoothScoOn()) {
-                    mForcedUseForCommExt = AudioSystem.FORCE_BT_SCO;
-                    return;
+                    if (mBtHelper.isBluetoothAudioNotConnectedToEarbud()) {
+                        Log.w(TAG, "setBluetoothScoOn(true) failed because device "+
+                                   "is not in audio connected mode");
+                        mForcedUseForCommExt = AudioSystem.FORCE_BT_SCO;
+                        return;
+                    }
                 }
                 mForcedUseForComm = AudioSystem.FORCE_BT_SCO;
             } else if (mForcedUseForComm == AudioSystem.FORCE_BT_SCO) {
                 mForcedUseForComm = AudioSystem.FORCE_NONE;
             }
             mForcedUseForCommExt = mForcedUseForComm;
+            if (AudioService.DEBUG_SCO) {
+                Log.i(TAG, "In setbluetoothScoOn(), mForcedUseForCommExt: " +
+                      mForcedUseForCommExt);
+            }
             AudioSystem.setParameters("BT_SCO=" + (on ? "on" : "off"));
             sendIILMsgNoDelay(MSG_IIL_SET_FORCE_USE, SENDMSG_QUEUE,
                     AudioSystem.FOR_COMMUNICATION, mForcedUseForComm, eventSource);

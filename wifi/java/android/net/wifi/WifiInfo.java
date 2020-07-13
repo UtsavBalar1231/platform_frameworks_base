@@ -212,6 +212,13 @@ public class WifiInfo implements Parcelable {
      */
     private boolean mMeteredHint;
 
+
+    private int mWifiGeneration;
+
+    private boolean mVhtMax8SpatialStreamsSupport;
+
+    private boolean mHe8ssCapableAp;
+
     /** @hide */
     @UnsupportedAppUsage
     public WifiInfo() {
@@ -222,6 +229,7 @@ public class WifiInfo implements Parcelable {
         mRssi = INVALID_RSSI;
         mLinkSpeed = LINK_SPEED_UNKNOWN;
         mFrequency = -1;
+        mWifiGeneration = -1;
     }
 
     /** @hide */
@@ -241,6 +249,9 @@ public class WifiInfo implements Parcelable {
         setNetworkSuggestionOrSpecifierPackageName(null);
         setFQDN(null);
         setProviderFriendlyName(null);
+        setWifiGeneration(-1);
+        setHe8ssCapableAp(false);
+        setVhtMax8SpatialStreamsSupport(false);
         txBad = 0;
         txSuccess = 0;
         rxSuccess = 0;
@@ -277,6 +288,9 @@ public class WifiInfo implements Parcelable {
             mOsuAp = source.mOsuAp;
             mFqdn = source.mFqdn;
             mProviderFriendlyName = source.mProviderFriendlyName;
+            mWifiGeneration = source.mWifiGeneration;
+            mVhtMax8SpatialStreamsSupport = source.mVhtMax8SpatialStreamsSupport;
+            mHe8ssCapableAp = source.mHe8ssCapableAp;
             txBad = source.txBad;
             txRetries = source.txRetries;
             txSuccess = source.txSuccess;
@@ -658,6 +672,36 @@ public class WifiInfo implements Parcelable {
         }
     }
 
+    /** @hide */
+    public void setWifiGeneration(int generation) {
+        mWifiGeneration = generation;
+    }
+
+    /** @hide */
+    public int getWifiGeneration() {
+        return mWifiGeneration;
+    }
+
+    /** @hide */
+    public void setVhtMax8SpatialStreamsSupport(boolean vhtMax8SpatialStreamsSupport) {
+        mVhtMax8SpatialStreamsSupport = vhtMax8SpatialStreamsSupport;
+    }
+
+    /** @hide */
+    public boolean isVhtMax8SpatialStreamsSupported() {
+        return mVhtMax8SpatialStreamsSupport;
+    }
+
+    /** @hide */
+    public void setHe8ssCapableAp(boolean he8ssCapableAp) {
+        mHe8ssCapableAp = he8ssCapableAp;
+    }
+
+    /** @hide */
+    public boolean isHe8ssCapableAp() {
+        return mHe8ssCapableAp;
+    }
+
     /** {@hide} */
     @UnsupportedAppUsage
     public static String removeDoubleQuotes(String string) {
@@ -679,6 +723,9 @@ public class WifiInfo implements Parcelable {
                 .append(", MAC: ").append(mMacAddress == null ? none : mMacAddress)
                 .append(", Supplicant state: ")
                 .append(mSupplicantState == null ? none : mSupplicantState)
+                .append(", Wifi Generation: ").append(mWifiGeneration)
+                .append(", HE Eight Max VHT Spatial Streams Support: ").append(mHe8ssCapableAp)
+                .append(", Eight Max VHT Spatial streams support: ").append(mVhtMax8SpatialStreamsSupport)
                 .append(", RSSI: ").append(mRssi)
                 .append(", Link speed: ").append(mLinkSpeed).append(LINK_SPEED_UNITS)
                 .append(", Tx Link speed: ").append(mTxLinkSpeed).append(LINK_SPEED_UNITS)
@@ -734,6 +781,9 @@ public class WifiInfo implements Parcelable {
         dest.writeString(mNetworkSuggestionOrSpecifierPackageName);
         dest.writeString(mFqdn);
         dest.writeString(mProviderFriendlyName);
+        dest.writeInt(mWifiGeneration);
+        dest.writeInt(mVhtMax8SpatialStreamsSupport ? 1 : 0);
+        dest.writeInt(mHe8ssCapableAp ? 1 : 0);
     }
 
     /** Implement the Parcelable interface {@hide} */
@@ -775,6 +825,9 @@ public class WifiInfo implements Parcelable {
                 info.mNetworkSuggestionOrSpecifierPackageName = in.readString();
                 info.mFqdn = in.readString();
                 info.mProviderFriendlyName = in.readString();
+                info.mWifiGeneration = in.readInt();
+                info.mVhtMax8SpatialStreamsSupport = in.readInt() != 0;
+                info.mHe8ssCapableAp = in.readInt() != 0;
                 return info;
             }
 

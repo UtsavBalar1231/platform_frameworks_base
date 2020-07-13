@@ -350,8 +350,10 @@
   <java-symbol type="bool" name="config_useFixedVolume" />
   <java-symbol type="bool" name="config_wifi_batched_scan_supported" />
   <java-symbol type="bool" name="config_wifi_softap_acs_supported" />
+  <java-symbol type="bool" name="config_wifi_softap_acs_include_dfs" />
   <java-symbol type="string" name="config_wifi_softap_acs_supported_channel_list" />
   <java-symbol type="bool" name="config_wifi_softap_ieee80211ac_supported" />
+  <java-symbol type="bool" name="config_wifi_softap_ieee80211ax_supported" />
   <java-symbol type="bool" name="config_enableMultiUserUI"/>
   <java-symbol type="bool" name="config_enableNewAutoSelectNetworkUI"/>
   <java-symbol type="bool" name="config_disableUsbPermissionDialogs"/>
@@ -1410,6 +1412,21 @@
   <java-symbol type="drawable" name="ic_wifi_signal_2" />
   <java-symbol type="drawable" name="ic_wifi_signal_3" />
   <java-symbol type="drawable" name="ic_wifi_signal_4" />
+  <java-symbol type="drawable" name="ic_wifi_4_signal_0" />
+  <java-symbol type="drawable" name="ic_wifi_4_signal_1" />
+  <java-symbol type="drawable" name="ic_wifi_4_signal_2" />
+  <java-symbol type="drawable" name="ic_wifi_4_signal_3" />
+  <java-symbol type="drawable" name="ic_wifi_4_signal_4" />
+  <java-symbol type="drawable" name="ic_wifi_5_signal_0" />
+  <java-symbol type="drawable" name="ic_wifi_5_signal_1" />
+  <java-symbol type="drawable" name="ic_wifi_5_signal_2" />
+  <java-symbol type="drawable" name="ic_wifi_5_signal_3" />
+  <java-symbol type="drawable" name="ic_wifi_5_signal_4" />
+  <java-symbol type="drawable" name="ic_wifi_6_signal_0" />
+  <java-symbol type="drawable" name="ic_wifi_6_signal_1" />
+  <java-symbol type="drawable" name="ic_wifi_6_signal_2" />
+  <java-symbol type="drawable" name="ic_wifi_6_signal_3" />
+  <java-symbol type="drawable" name="ic_wifi_6_signal_4" />
   <java-symbol type="drawable" name="ic_signal_wifi_transient_animation" />
   <java-symbol type="drawable" name="ic_hotspot_transient_animation" />
   <java-symbol type="drawable" name="ic_bluetooth_transient_animation" />
@@ -1955,6 +1972,7 @@
   <java-symbol type="bool" name="config_supportLongPressPowerWhenNonInteractive" />
   <java-symbol type="bool" name="config_wifi_background_scan_support" />
   <java-symbol type="bool" name="config_wifi_dual_band_support" />
+  <java-symbol type="bool" name="config_wifi_report_he_ready" />
   <java-symbol type="integer" name="config_wifi_max_ap_interfaces" />
   <java-symbol type="bool" name="config_wifi_convert_apband_5ghz_to_any" />
   <java-symbol type="bool" name="config_wifi_local_only_hotspot_5ghz" />
@@ -1962,6 +1980,7 @@
   <java-symbol type="bool" name="config_wifi_p2p_mac_randomization_supported" />
   <java-symbol type="bool" name="config_wifi_link_probing_supported" />
   <java-symbol type="bool" name="config_wifi_fast_bss_transition_enabled" />
+  <java-symbol type="bool" name="config_wifi_framework_secondary_sta_supported" />
   <java-symbol type="bool" name="config_wimaxEnabled" />
   <java-symbol type="bool" name="show_ongoing_ime_switcher" />
   <java-symbol type="color" name="config_defaultNotificationColor" />
@@ -2123,6 +2142,7 @@
   <java-symbol type="string" name="config_geocoderProviderPackageName" />
   <java-symbol type="string" name="config_geofenceProviderPackageName" />
   <java-symbol type="string" name="config_networkLocationProviderPackageName" />
+  <java-symbol type="string" name="config_comboNetworkLocationProvider" />
   <java-symbol type="string" name="config_wimaxManagerClassname" />
   <java-symbol type="string" name="config_wimaxNativeLibLocation" />
   <java-symbol type="string" name="config_wimaxServiceClassname" />
@@ -3675,7 +3695,11 @@
   <java-symbol type="id" name="user_loading" />
   <java-symbol type="style" name="Theme.DeviceDefault.Light.Dialog.Alert.UserSwitchingDialog" />
 
+  <java-symbol type="integer" name="config_sms_authorization_timeout_ms" />
+  <java-symbol type="bool" name="config_sms_authorization_enabled" />
+
   <java-symbol type="string" name="battery_saver_description_with_learn_more" />
+  <java-symbol type="bool" name="config_primarycard" />
   <java-symbol type="string" name="confirm_battery_saver" />
 
   <java-symbol type="attr" name="opticalInsetLeft" />
@@ -3686,6 +3710,13 @@
   <java-symbol type="drawable" name="ic_lock_lockdown" />
   <java-symbol type="drawable" name="ic_arrow_forward" />
   <java-symbol type="drawable" name="ic_permission" />
+
+  <!-- For Dual SoftaAp -->
+  <java-symbol type="array" name="config_wifi_dual_sap_interfaces" />
+  <java-symbol type="bool" name="config_wifi_dual_sap_mode_enabled" />
+
+  <!-- For WPA3 SoftaAp -->
+  <java-symbol type="bool" name="config_wifi_wap3_sap_mode_enabled" />
 
   <java-symbol type="integer" name="config_defaultHapticFeedbackIntensity" />
   <java-symbol type="integer" name="config_defaultNotificationVibrationIntensity" />
@@ -3869,6 +3900,10 @@
 
   <java-symbol type="integer" name="config_sms_authorization_timeout_ms" />
   <java-symbol type="bool" name="config_sms_authorization_enabled" />
+
+  <!-- For shutdown animation -->
+  <java-symbol type="bool" name="config_shutdownAnimationEnabled" />
+  <java-symbol type="integer" name="config_shutdownAnimationDurationMs" />
 
   <!-- For Pdn throttle feature -->
   <java-symbol type="bool" name="config_pdp_retry_for_29_33_55_enabled" />

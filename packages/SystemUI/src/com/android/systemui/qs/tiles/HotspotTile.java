@@ -18,7 +18,9 @@ package com.android.systemui.qs.tiles;
 
 import android.annotation.Nullable;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.net.wifi.WifiManager;
 import android.os.UserManager;
 import android.service.quicksettings.Tile;
 import android.widget.Switch;
@@ -39,12 +41,16 @@ public class HotspotTile extends QSTileImpl<BooleanState> {
             "com.android.settings", "com.android.settings.TetherSettings"));
 
     private final Icon mEnabledStatic = ResourceIcon.get(R.drawable.ic_hotspot);
+    private final Icon mWifi4EnabledStatic = ResourceIcon.get(R.drawable.ic_wifi_4_hotspot);
+    private final Icon mWifi5EnabledStatic = ResourceIcon.get(R.drawable.ic_wifi_5_hotspot);
+    private final Icon mWifi6EnabledStatic = ResourceIcon.get(R.drawable.ic_wifi_6_hotspot);
 
     private final HotspotController mHotspotController;
     private final DataSaverController mDataSaverController;
 
     private final HotspotAndDataSaverCallbacks mCallbacks = new HotspotAndDataSaverCallbacks();
     private boolean mListening;
+    private WifiManager mWifiManager;
 
     @Inject
     public HotspotTile(QSHost host, HotspotController hotspotController,
@@ -54,6 +60,7 @@ public class HotspotTile extends QSTileImpl<BooleanState> {
         mDataSaverController = dataSaverController;
         mHotspotController.observe(this, mCallbacks);
         mDataSaverController.observe(this, mCallbacks);
+        mWifiManager = (WifiManager) mContext.getSystemService(Context.WIFI_SERVICE);
     }
 
     @Override
@@ -132,6 +139,15 @@ public class HotspotTile extends QSTileImpl<BooleanState> {
         if (state.isTransient) {
             state.icon = ResourceIcon.get(
                     com.android.internal.R.drawable.ic_hotspot_transient_animation);
+        } else if (state.value) {
+            int generation = mWifiManager.getSoftApWifiGeneration();
+            if (generation == WifiManager.WIFI_GENERATION_6) {
+                state.icon = mWifi6EnabledStatic;
+            } else if (generation == WifiManager.WIFI_GENERATION_5) {
+                state.icon = mWifi5EnabledStatic;
+            } else if (generation == WifiManager.WIFI_GENERATION_4) {
+                state.icon = mWifi4EnabledStatic;
+            }
         }
         state.expandedAccessibilityClassName = Switch.class.getName();
         state.contentDescription = state.label;

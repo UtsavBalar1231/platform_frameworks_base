@@ -521,7 +521,6 @@ public class MediaRecorder implements AudioRouting,
 
         /** @hide WAVE media file format*/
         public static final int WAVE = 21;
-
     };
 
     /**

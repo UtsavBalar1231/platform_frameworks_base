@@ -30,6 +30,8 @@ import static android.net.ConnectivityManager.TETHERING_BLUETOOTH;
 import static android.net.ConnectivityManager.TETHERING_INVALID;
 import static android.net.ConnectivityManager.TETHERING_USB;
 import static android.net.ConnectivityManager.TETHERING_WIFI;
+import static android.net.ConnectivityManager.TETHERING_WIGIG;
+import static android.net.NetworkCapabilities.TRANSPORT_CELLULAR;
 import static android.net.ConnectivityManager.TETHER_ERROR_MASTER_ERROR;
 import static android.net.ConnectivityManager.TETHER_ERROR_NO_ERROR;
 import static android.net.ConnectivityManager.TETHER_ERROR_SERVICE_UNAVAIL;
@@ -86,6 +88,7 @@ import android.os.Message;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
 import android.os.ResultReceiver;
+import android.os.SystemProperties;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.os.UserManagerInternal;
@@ -331,7 +334,7 @@ public class Tethering extends BaseNetworkObserver {
             if (up) {
                 maybeTrackNewInterfaceLocked(iface);
             } else {
-                if (ifaceNameToType(iface) == TETHERING_BLUETOOTH) {
+                if (ifaceNameToType(iface) == TETHERING_WIGIG) {
                     stopTrackingInterfaceLocked(iface);
                 } else {
                     // Ignore usb0 down after enabling RNDIS.
@@ -353,6 +356,10 @@ public class Tethering extends BaseNetworkObserver {
         final TetheringConfiguration cfg = mConfig;
 
         if (cfg.isWifi(iface)) {
+            String wigigIface = SystemProperties.get("persist.vendor.wigig.interface", "wigig0");
+            if (wigigIface.equals(iface)) {
+                return TETHERING_WIGIG;
+            }
             return TETHERING_WIFI;
         } else if (cfg.isUsb(iface)) {
             return TETHERING_USB;
@@ -870,7 +877,9 @@ public class Tethering extends BaseNetworkObserver {
         }
 
         if (!TextUtils.isEmpty(ifname)) {
-            maybeTrackNewInterfaceLocked(ifname, TETHERING_WIFI);
+            final int interfaceType =
+                    (ifaceNameToType(ifname) == TETHERING_WIGIG ? TETHERING_WIGIG : TETHERING_WIFI);
+            maybeTrackNewInterfaceLocked(ifname, interfaceType);
             changeInterfaceState(ifname, ipServingMode);
         } else {
             mLog.e(String.format(
@@ -1117,7 +1126,8 @@ public class Tethering extends BaseNetworkObserver {
             addState(mSetDnsForwardersErrorState);
 
             mNotifyList = new ArrayList<>();
-            mIPv6TetheringCoordinator = deps.getIPv6TetheringCoordinator(mNotifyList, mLog);
+            mIPv6TetheringCoordinator = deps.getIPv6TetheringCoordinator(
+                    mNotifyList, mLog);
             mOffload = new OffloadWrapper();
 
             setInitialState(mInitialState);
@@ -1327,11 +1337,15 @@ public class Tethering extends BaseNetworkObserver {
             mOffload.excludeDownstreamInterface(who.interfaceName());
             mForwardedDownstreams.remove(who);
 
-            // If this is a Wi-Fi interface, tell WifiManager of any errors.
+            // If this is a Wi-Fi interface, tell WifiManager of any errors
+            // or the inactive serving state.
             if (who.interfaceType() == TETHERING_WIFI) {
                 if (who.lastError() != TETHER_ERROR_NO_ERROR) {
                     getWifiManager().updateInterfaceIpState(
                             who.interfaceName(), IFACE_IP_MODE_CONFIGURATION_ERROR);
+                } else {
+                    getWifiManager().updateInterfaceIpState(
+                            who.interfaceName(), IFACE_IP_MODE_UNSPECIFIED);
                 }
             }
         }

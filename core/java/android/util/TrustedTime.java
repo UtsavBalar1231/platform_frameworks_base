@@ -32,7 +32,12 @@ public interface TrustedTime {
      *
      * @deprecated Only kept for UnsupportedAppUsage. Do not use. See {@link NtpTrustedTime}
      */
-    @Deprecated
+    public boolean forceSync();
+
+    /**
+     * Force update the cached time with an external trusted time source,
+     * returning {@code true} when successful.
+     */
     @UnsupportedAppUsage
     public boolean forceRefresh();
 

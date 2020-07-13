@@ -28,11 +28,13 @@ import android.net.NetworkInfo;
 import android.net.RouteInfo;
 import android.os.INetworkManagementService;
 import android.os.RemoteException;
+import android.os.SystemProperties;
 import android.os.ServiceSpecificException;
 import android.util.Slog;
 
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.ArrayUtils;
+import com.android.server.NetPluginDelegate;
 import com.android.server.net.BaseNetworkObserver;
 
 import java.net.Inet4Address;
@@ -86,6 +88,12 @@ public class Nat464Xlat extends BaseNetworkObserver {
     private Inet6Address mIPv6Address;
     private State mState = State.IDLE;
 
+    /**
+    * Used to determine if Android XLAT is required or not
+    * which defaults to false
+    */
+    private static final String xlatRequired = "persist.vendor.net.doxlat";
+
     public Nat464Xlat(NetworkAgentInfo nai, INetd netd, IDnsResolver dnsResolver,
             INetworkManagementService nmService) {
         mDnsResolver = dnsResolver;
@@ -105,6 +113,7 @@ public class Nat464Xlat extends BaseNetworkObserver {
     @VisibleForTesting
     protected static boolean requiresClat(NetworkAgentInfo nai) {
         // TODO: migrate to NetworkCapabilities.TRANSPORT_*.
+        final int netType = nai.networkInfo.getType();
         final boolean supported = ArrayUtils.contains(NETWORK_TYPES, nai.networkInfo.getType());
         final boolean connected = ArrayUtils.contains(NETWORK_STATES, nai.networkInfo.getState());
 
@@ -117,7 +126,17 @@ public class Nat464Xlat extends BaseNetworkObserver {
         // If the network tells us it doesn't use clat, respect that.
         final boolean skip464xlat = (nai.netMisc() != null) && nai.netMisc().skip464xlat;
 
-        return supported && connected && isIpv6OnlyNetwork && !skip464xlat;
+        boolean androidXlatEnabled = true;
+        if(netType == ConnectivityManager.TYPE_MOBILE) {
+            final String xlatConfigValue = NetPluginDelegate.getConfig(xlatRequired, "true");
+            if(xlatConfigValue != null && xlatConfigValue.equals("false")){
+                Slog.i(TAG, "Android Xlat is disabled");
+                androidXlatEnabled = false;
+            }
+        }
+
+        return supported && connected && isIpv6OnlyNetwork &&
+                !skip464xlat && androidXlatEnabled;
     }
 
     /**

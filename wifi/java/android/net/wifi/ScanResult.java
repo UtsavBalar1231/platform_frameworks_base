@@ -138,7 +138,7 @@ public class ScanResult implements Parcelable {
      * Used for Hotspot 2.0.
      */
     public static final int KEY_MGMT_OSEN = 7;
-     /**
+    /**
      * @hide
      * Security key management scheme: SAE.
      */
@@ -163,6 +163,21 @@ public class ScanResult implements Parcelable {
      * Security key management scheme: OWE in transition mode.
      */
     public static final int KEY_MGMT_OWE_TRANSITION = 12;
+    /**
+     * @hide
+     * Security key management scheme: DPP.
+     */
+    public static final int KEY_MGMT_DPP = 13;
+    /**
+     * @hide
+     * Security key management scheme: FILS_SHA256.
+     */
+    public static final int KEY_MGMT_FILS_SHA256 = 14;
+    /**
+     * @hide
+     * Security key management scheme: FILS_SHA384.
+     */
+    public static final int KEY_MGMT_FILS_SHA384 = 15;
     /**
      * @hide
      * No cipher suite.
@@ -427,6 +442,21 @@ public class ScanResult implements Parcelable {
     }
 
     /**
+     * @hide
+     */
+    public boolean is60GHz() {
+        return ScanResult.is60GHz(frequency);
+    }
+
+    /**
+     * @hide
+     * TODO: makes real freq boundaries
+     */
+    public static boolean is60GHz(int freq) {
+        return freq >= 58320 && freq <= 70200;
+    }
+
+    /**
      *  @hide
      * anqp lines from supplicant BSS response
      */
@@ -465,6 +495,8 @@ public class ScanResult implements Parcelable {
         public static final int EID_VHT_OPERATION = 192;
         @UnsupportedAppUsage
         public static final int EID_VSA = 221;
+        public static final int EID_EXTENSION = 255;
+        public static final int EID_EXT_HE_CAPABILITIES = 35;
 
         @UnsupportedAppUsage
         public int id;

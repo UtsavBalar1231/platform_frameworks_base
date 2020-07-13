@@ -41,6 +41,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.PersistableBundle;
+import android.os.SystemProperties;
 import android.provider.Settings;
 import android.telephony.CarrierConfigManager;
 import android.telephony.PhoneStateListener;
@@ -160,6 +161,7 @@ public class NetworkControllerImpl extends BroadcastReceiver
     private boolean mIsEmergency;
 
     @VisibleForTesting
+    FiveGServiceClient mFiveGServiceClient;
     ServiceState mLastServiceState;
     private boolean mUserSetup;
     private boolean mSimDetected;
@@ -250,7 +252,7 @@ public class NetworkControllerImpl extends BroadcastReceiver
                         deviceProvisionedController.getCurrentUser()));
             }
         });
-
+        mFiveGServiceClient = FiveGServiceClient.getInstance(context);
         ConnectivityManager.NetworkCallback callback = new ConnectivityManager.NetworkCallback(){
             private Network mLastNetwork;
             private NetworkCapabilities mLastNetworkCapabilities;
@@ -300,6 +302,7 @@ public class NetworkControllerImpl extends BroadcastReceiver
         for (int i = 0; i < mMobileSignalControllers.size(); i++) {
             MobileSignalController mobileSignalController = mMobileSignalControllers.valueAt(i);
             mobileSignalController.registerListener();
+            mobileSignalController.registerFiveGStateListener(mFiveGServiceClient);
         }
         if (mSubscriptionListener == null) {
             mSubscriptionListener = new SubListener();
@@ -321,6 +324,7 @@ public class NetworkControllerImpl extends BroadcastReceiver
         filter.addAction(ConnectivityManager.INET_CONDITION_ACTION);
         filter.addAction(Intent.ACTION_AIRPLANE_MODE_CHANGED);
         filter.addAction(CarrierConfigManager.ACTION_CARRIER_CONFIG_CHANGED);
+        filter.addAction(TelephonyIntents.ACTION_ANY_DATA_CONNECTION_STATE_CHANGED);
         mContext.registerReceiver(this, filter, null, mReceiverHandler);
         mListening = true;
 
@@ -332,6 +336,7 @@ public class NetworkControllerImpl extends BroadcastReceiver
         for (int i = 0; i < mMobileSignalControllers.size(); i++) {
             MobileSignalController mobileSignalController = mMobileSignalControllers.valueAt(i);
             mobileSignalController.unregisterListener();
+            mobileSignalController.unregisterFiveGStateListener(mFiveGServiceClient);
         }
         mSubscriptionManager.removeOnSubscriptionsChangedListener(mSubscriptionListener);
         mContext.unregisterReceiver(this);
@@ -686,6 +691,7 @@ public class NetworkControllerImpl extends BroadcastReceiver
                 }
                 if (mListening) {
                     controller.registerListener();
+                    controller.registerFiveGStateListener(mFiveGServiceClient);
                 }
             }
         }
@@ -696,6 +702,7 @@ public class NetworkControllerImpl extends BroadcastReceiver
                     mDefaultSignalController = null;
                 }
                 cachedControllers.get(key).unregisterListener();
+                cachedControllers.get(key).unregisterFiveGStateListener(mFiveGServiceClient);
             }
         }
         mCallbackHandler.setSubs(subscriptions);
@@ -1149,6 +1156,13 @@ public class NetworkControllerImpl extends BroadcastReceiver
         public String patternOfCarrierSpecificDataIcon = "";
         public long nrIconDisplayGracePeriodMs;
 
+        boolean showRsrpSignalLevelforLTE = false;
+        boolean hideNoInternetState = false;
+        boolean showVolteIcon = false;
+        boolean alwaysShowNetworkTypeIcon = false;
+        boolean enableRatIconEnhancement = false;
+        boolean showVowifiIcon = false;
+
         /**
          * Mapping from NR 5G status string to an integer. The NR 5G status string should match
          * those in carrier config.
@@ -1174,6 +1188,13 @@ public class NetworkControllerImpl extends BroadcastReceiver
                     res.getBoolean(R.bool.config_hspa_data_distinguishable);
             config.inflateSignalStrengths = res.getBoolean(
                     com.android.internal.R.bool.config_inflateSignalStrength);
+
+            config.alwaysShowNetworkTypeIcon =
+                    context.getResources().getBoolean(R.bool.config_alwaysShowTypeIcon);
+            config.showRsrpSignalLevelforLTE =
+                    res.getBoolean(R.bool.config_showRsrpSignalLevelforLTE);
+            config.hideNoInternetState = res.getBoolean(R.bool.config_hideNoInternetState);
+            config.showVolteIcon = res.getBoolean(R.bool.config_display_volte);
 
             CarrierConfigManager configMgr = (CarrierConfigManager)
                     context.getSystemService(Context.CARRIER_CONFIG_SERVICE);
@@ -1204,6 +1225,9 @@ public class NetworkControllerImpl extends BroadcastReceiver
                         b.getInt(CarrierConfigManager.KEY_5G_ICON_DISPLAY_GRACE_PERIOD_SEC_INT),
                         config);
             }
+            config.enableRatIconEnhancement =
+                    SystemProperties.getBoolean("persist.sysui.rat_icon_enhancement", false);
+            config.showVowifiIcon = res.getBoolean(R.bool.config_display_vowifi);
 
             return config;
         }

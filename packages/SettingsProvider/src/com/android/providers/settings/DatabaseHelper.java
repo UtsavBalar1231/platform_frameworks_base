@@ -2276,6 +2276,9 @@ class DatabaseHelper extends SQLiteOpenHelper {
             // Set default tty mode
             loadSetting(stmt, Settings.System.TTY_MODE, 0);
 
+            // Set default time format
+            loadStringSetting(stmt, Settings.System.TIME_12_24, R.string.def_time_format);
+
             loadIntegerSetting(stmt, Settings.System.SCREEN_BRIGHTNESS,
                     R.integer.def_screen_brightness);
 
@@ -2317,6 +2320,8 @@ class DatabaseHelper extends SQLiteOpenHelper {
                 R.bool.def_sound_effects_enabled);
         loadBooleanSetting(stmt, Settings.System.HAPTIC_FEEDBACK_ENABLED,
                 R.bool.def_haptic_feedback);
+        loadBooleanSetting(stmt, Settings.System.CALL_CONNECTED_TONE_ENABLED,
+                R.bool.def_call_connected_tones_enabled);
 
         loadIntegerSetting(stmt, Settings.System.LOCKSCREEN_SOUNDS_ENABLED,
             R.integer.def_lockscreen_sounds_enabled);
@@ -2581,8 +2586,8 @@ class DatabaseHelper extends SQLiteOpenHelper {
             for (int phoneId = 0;
                     phoneId < TelephonyManager.getDefault().getPhoneCount(); phoneId++) {
                 mode = TelephonyManager.getTelephonyProperty(phoneId,
-                        "ro.telephony.default_network",
-                        Integer.toString(RILConstants.PREFERRED_NETWORK_MODE));
+                         "ro.telephony.default_network",
+                         Integer.toString(RILConstants.NETWORK_MODE_WCDMA_PREF));
                 if (phoneId == 0) {
                     val = mode;
                 } else {
@@ -2621,6 +2626,8 @@ class DatabaseHelper extends SQLiteOpenHelper {
                 defaultLidBehavior = 0;
             }
             loadSetting(stmt, Settings.Global.LID_BEHAVIOR, defaultLidBehavior);
+	    loadStringSetting(stmt, Settings.Global.NTP_SERVER_2,
+                    R.string.def_ntp_server_2);
 
             loadIntegerSetting(stmt, Settings.Global.OTA_DISABLE_AUTOMATIC_UPDATE,
                     R.integer.def_ota_disable_automatic_update);

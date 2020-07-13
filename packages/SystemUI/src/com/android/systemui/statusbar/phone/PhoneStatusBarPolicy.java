@@ -36,6 +36,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.Icon;
 import android.media.AudioManager;
+import android.net.wifi.WifiManager;
 import android.os.Handler;
 import android.os.RemoteException;
 import android.os.UserHandle;
@@ -158,6 +159,7 @@ public class PhoneStatusBarPolicy
 
     private BluetoothController mBluetooth;
     private AlarmManager.AlarmClockInfo mNextAlarm;
+    private WifiManager mWifiManager;
 
     public PhoneStatusBarPolicy(Context context, StatusBarIconController iconController) {
         mContext = context;
@@ -212,6 +214,8 @@ public class PhoneStatusBarPolicy
         filter.addAction(Intent.ACTION_MANAGED_PROFILE_REMOVED);
         mContext.registerReceiver(mIntentReceiver, filter, null, mHandler);
 
+        mWifiManager = (WifiManager) mContext.getSystemService(Context.WIFI_SERVICE);
+
         // listen for user / profile change.
         try {
             ActivityManager.getService().registerUserSwitchObserver(mUserSwitchListener, TAG);
@@ -243,8 +247,7 @@ public class PhoneStatusBarPolicy
         mIconController.setIconVisibility(mSlotCast, false);
 
         // hotspot
-        mIconController.setIcon(mSlotHotspot, R.drawable.stat_sys_hotspot,
-                mContext.getString(R.string.accessibility_status_bar_hotspot));
+        updateHotspotIcon();
         mIconController.setIconVisibility(mSlotHotspot, mHotspot.isHotspotEnabled());
 
         // managed profile
@@ -601,6 +604,7 @@ public class PhoneStatusBarPolicy
     private final HotspotController.Callback mHotspotCallback = new HotspotController.Callback() {
         @Override
         public void onHotspotChanged(boolean enabled, int numDevices) {
+            updateHotspotIcon();
             mIconController.setIconVisibility(mSlotHotspot, enabled);
         }
     };
@@ -861,4 +865,21 @@ public class PhoneStatusBarPolicy
             mIconController.setIconVisibility(mSlotScreenRecord, false);
         });
     }
+    private void updateHotspotIcon() {
+        int generation = mWifiManager.getSoftApWifiGeneration();
+        if (generation == WifiManager.WIFI_GENERATION_6) {
+            mIconController.setIcon(mSlotHotspot, R.drawable.stat_sys_wifi_6_hotspot,
+                mContext.getString(R.string.accessibility_status_bar_hotspot));
+        } else if (generation == WifiManager.WIFI_GENERATION_5) {
+            mIconController.setIcon(mSlotHotspot, R.drawable.stat_sys_wifi_5_hotspot,
+                mContext.getString(R.string.accessibility_status_bar_hotspot));
+        } else if (generation == WifiManager.WIFI_GENERATION_4) {
+            mIconController.setIcon(mSlotHotspot, R.drawable.stat_sys_wifi_4_hotspot,
+                mContext.getString(R.string.accessibility_status_bar_hotspot));
+        } else {
+            mIconController.setIcon(mSlotHotspot, R.drawable.stat_sys_hotspot,
+                mContext.getString(R.string.accessibility_status_bar_hotspot));
+        }
+    }
+
 }

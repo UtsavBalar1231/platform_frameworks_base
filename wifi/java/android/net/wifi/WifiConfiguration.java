@@ -94,6 +94,9 @@ public class WifiConfiguration implements Parcelable {
     /** {@hide} */
     private static final int MAXIMUM_RANDOM_MAC_GENERATION_RETRY = 3;
 
+    /** {@hide} */
+    public static final String shareThisApVarName = "share_this_ap";
+
     /**
      * Recognized key management schemes.
      */
@@ -161,11 +164,29 @@ public class WifiConfiguration implements Parcelable {
          */
         public static final int WPA_EAP_SHA256 = 12;
 
+        /**
+        * IEEE 802.11ai FILS SK with SHA256
+         * @hide
+        */
+        public static final int FILS_SHA256 = 13;
+        /**
+         * IEEE 802.11ai FILS SK with SHA384:
+         * @hide
+         */
+        public static final int FILS_SHA384 = 14;
+        /**
+         * Device Provisioning Protocol
+         * @hide
+         */
+        public static final int DPP = 15;
+
         public static final String varName = "key_mgmt";
 
         public static final String[] strings = { "NONE", "WPA_PSK", "WPA_EAP",
                 "IEEE8021X", "WPA2_PSK", "OSEN", "FT_PSK", "FT_EAP",
-                "SAE", "OWE", "SUITE_B_192", "WPA_PSK_SHA256", "WPA_EAP_SHA256" };
+                "SAE", "OWE", "SUITE_B_192", "WPA_PSK_SHA256", "WPA_EAP_SHA256",
+                "FILS_SHA256", "FILS_SHA384", "DPP",
+        };
     }
 
     /**
@@ -359,6 +380,10 @@ public class WifiConfiguration implements Parcelable {
     public static final int SECURITY_TYPE_EAP_SUITE_B = 5;
     /** @hide */
     public static final int SECURITY_TYPE_OWE = 6;
+    /** @hide */
+    public static final int SECURITY_TYPE_FILS_SHA256 = 7;
+    /** @hide */
+    public static final int SECURITY_TYPE_FILS_SHA384 = 8;
 
     /** @hide */
     @Retention(RetentionPolicy.SOURCE)
@@ -369,7 +394,9 @@ public class WifiConfiguration implements Parcelable {
             SECURITY_TYPE_EAP,
             SECURITY_TYPE_SAE,
             SECURITY_TYPE_EAP_SUITE_B,
-            SECURITY_TYPE_OWE
+            SECURITY_TYPE_OWE,
+            SECURITY_TYPE_FILS_SHA256,
+            SECURITY_TYPE_FILS_SHA384
     })
     public @interface SecurityType {}
 
@@ -421,6 +448,12 @@ public class WifiConfiguration implements Parcelable {
                 allowedKeyManagement.set(WifiConfiguration.KeyMgmt.OWE);
                 requirePMF = true;
                 break;
+            case SECURITY_TYPE_FILS_SHA256:
+                allowedKeyManagement.set(WifiConfiguration.KeyMgmt.FILS_SHA256);
+                break;
+            case SECURITY_TYPE_FILS_SHA384:
+                allowedKeyManagement.set(WifiConfiguration.KeyMgmt.FILS_SHA384);
+                break;
             default:
                 throw new IllegalArgumentException("unknown security type " + securityType);
         }
@@ -471,6 +504,18 @@ public class WifiConfiguration implements Parcelable {
      * @hide
      */
     public static final int AP_BAND_5GHZ = 1;
+
+    /**
+     * 2GHz + 5GHz Dual band.
+     * @hide
+     */
+    public static final int AP_BAND_DUAL = 2;
+
+    /**
+     * 60GHz band
+     * @hide
+     */
+    public static final int AP_BAND_60GHZ = 3;
 
     /**
      * Device is allowed to choose the optimal band (2Ghz or 5Ghz) based on device capability,
@@ -549,6 +594,12 @@ public class WifiConfiguration implements Parcelable {
      * @hide
      */
     public boolean requirePMF;
+
+    /**
+     * @hide
+     * This configuration is used in AP to extend the coverage.
+     */
+    public boolean shareThisAp;
 
     /**
      * Update identifier, for Passpoint network.
@@ -728,6 +779,12 @@ public class WifiConfiguration implements Parcelable {
      */
     public int userApproved = USER_UNSPECIFIED;
 
+    /**
+     * @hide
+     * Last WPA2 fallback connection attempted timestamp
+     */
+    public long lastWpa2FallbackAttemptTime = -1L;
+
     /** The Below RSSI thresholds are used to configure AutoJoin
      *  - GOOD/LOW/BAD thresholds are used so as to calculate link score
      *  - UNWANTED_SOFT are used by the blacklisting logic so as to handle
@@ -782,6 +839,19 @@ public class WifiConfiguration implements Parcelable {
      * For debug: date at which the config was last updated
      */
     public String creationTime;
+
+    /**
+     * @hide
+     * Iface name for OWE transition mode
+     */
+    public String oweTransIfaceName;
+
+    /**
+     * @hide
+     * network ID of linked saved wifi configuration. it is applicable only to
+     * ephemeral networks matching with saved networks.
+     */
+    public int linkedNetworkId;
 
     /**
      * @hide
@@ -1085,6 +1155,37 @@ public class WifiConfiguration implements Parcelable {
         }
         mRandomizedMacAddress = mac;
     }
+     /**
+     * @hide
+     * DPP Connector (signedConnector as string).
+     */
+    public String dppConnector;
+
+    /**
+     * @hide
+     * DPP net Access Key (own private key).
+     */
+    public String dppNetAccessKey;
+
+    /**
+     * @hide
+     * DPP net Access Key expiry in UNIX time stamp. 0 indicates no expiration.
+     */
+    public int dppNetAccessKeyExpiry;
+
+    /**
+     * @hide
+     * DPP C-Sign key (Configurator public key).
+     */
+    public String dppCsign;
+
+    /**
+     * @hide
+     * Wifi Identity to identify on which interface this configuration is allowed.
+     * it should take one of WifiManager.STA_PRIMARY/STA_SECONDARY.
+     * default value: WifiManager.STA_PRIMARY.
+     */
+    public int staId;
 
     /** @hide
      * Boost given to RSSI on a home network for the purpose of calculating the score
@@ -1764,6 +1865,7 @@ public class WifiConfiguration implements Parcelable {
         roamingConsortiumIds = new long[0];
         priority = 0;
         hiddenSSID = false;
+        shareThisAp = false;
         allowedKeyManagement = new BitSet();
         allowedProtocols = new BitSet();
         allowedAuthAlgorithms = new BitSet();
@@ -1793,6 +1895,13 @@ public class WifiConfiguration implements Parcelable {
         shared = true;
         dtimInterval = 0;
         mRandomizedMacAddress = MacAddress.fromString(WifiInfo.DEFAULT_MAC_ADDRESS);
+        dppConnector = null;
+        dppNetAccessKey = null;
+        dppNetAccessKeyExpiry = -1;
+        dppCsign = null;
+        oweTransIfaceName = null;
+        staId = WifiManager.STA_PRIMARY;
+        linkedNetworkId = INVALID_NETWORK_ID;
     }
 
     /**
@@ -1848,6 +1957,8 @@ public class WifiConfiguration implements Parcelable {
                 .append(" PRIO: ").append(this.priority)
                 .append(" HIDDEN: ").append(this.hiddenSSID)
                 .append(" PMF: ").append(this.requirePMF)
+                .append(" OWE Transition mode Iface: ").append(this.oweTransIfaceName)
+                .append(" linked network ID: ").append(this.linkedNetworkId)
                 .append('\n');
 
 
@@ -1998,6 +2109,17 @@ public class WifiConfiguration implements Parcelable {
         sbuf.append("\nEnterprise config:\n");
         sbuf.append(enterpriseConfig);
 
+        sbuf.append("\nDPP config:\n");
+        if (this.dppConnector != null) {
+            sbuf.append(" Dpp Connector: *\n");
+        }
+        if (this.dppNetAccessKey != null) {
+            sbuf.append(" Dpp NetAccessKey: *\n");
+        }
+        if (this.dppCsign != null) {
+            sbuf.append(" Dpp Csign: *\n");
+        }
+
         sbuf.append("IP config:\n");
         sbuf.append(mIpConfiguration.toString());
 
@@ -2040,6 +2162,10 @@ public class WifiConfiguration implements Parcelable {
         }
         sbuf.append("recentFailure: ").append("Association Rejection code: ")
                 .append(recentFailure.getAssociationStatus()).append("\n");
+
+        sbuf.append("ShareThisAp: ").append(this.shareThisAp);
+        sbuf.append('\n');
+        sbuf.append("wifi id: ").append(this.staId).append("\n");
         return sbuf.toString();
     }
 
@@ -2169,6 +2295,8 @@ public class WifiConfiguration implements Parcelable {
             return KeyMgmt.WPA_EAP;
         } else if (allowedKeyManagement.get(KeyMgmt.IEEE8021X)) {
             return KeyMgmt.IEEE8021X;
+        } else if (allowedKeyManagement.get(KeyMgmt.DPP)) {
+            return KeyMgmt.DPP;
         } else if (allowedKeyManagement.get(KeyMgmt.SAE)) {
             return KeyMgmt.SAE;
         } else if (allowedKeyManagement.get(KeyMgmt.OWE)) {
@@ -2226,6 +2354,8 @@ public class WifiConfiguration implements Parcelable {
             key = SSID + KeyMgmt.strings[KeyMgmt.SAE];
         } else if (allowedKeyManagement.get(KeyMgmt.SUITE_B_192)) {
             key = SSID + KeyMgmt.strings[KeyMgmt.SUITE_B_192];
+        } else if (allowedKeyManagement.get(KeyMgmt.DPP)) {
+            key = SSID + KeyMgmt.strings[KeyMgmt.DPP];
         } else {
             key = SSID + KeyMgmt.strings[KeyMgmt.NONE];
         }
@@ -2367,6 +2497,7 @@ public class WifiConfiguration implements Parcelable {
             SSID = source.SSID;
             BSSID = source.BSSID;
             FQDN = source.FQDN;
+            shareThisAp = source.shareThisAp;
             roamingConsortiumIds = source.roamingConsortiumIds.clone();
             providerFriendlyName = source.providerFriendlyName;
             isHomeProviderNetwork = source.isHomeProviderNetwork;
@@ -2436,9 +2567,18 @@ public class WifiConfiguration implements Parcelable {
             shared = source.shared;
             recentFailure.setAssociationStatus(source.recentFailure.getAssociationStatus());
             mRandomizedMacAddress = source.mRandomizedMacAddress;
+            dppConnector = source.dppConnector;
+            dppNetAccessKey = source.dppNetAccessKey;
+            dppNetAccessKeyExpiry = source.dppNetAccessKeyExpiry;
+            dppCsign = source.dppCsign;
+
             macRandomizationSetting = source.macRandomizationSetting;
             requirePMF = source.requirePMF;
             updateIdentifier = source.updateIdentifier;
+            oweTransIfaceName = source.oweTransIfaceName;
+            staId = source.staId;
+            lastWpa2FallbackAttemptTime = source.lastWpa2FallbackAttemptTime;
+            linkedNetworkId = source.linkedNetworkId;
         }
     }
 
@@ -2450,6 +2590,7 @@ public class WifiConfiguration implements Parcelable {
         mNetworkSelectionStatus.writeToParcel(dest);
         dest.writeString(SSID);
         dest.writeString(BSSID);
+        dest.writeInt(shareThisAp ? 1 : 0);
         dest.writeInt(apBand);
         dest.writeInt(apChannel);
         dest.writeString(FQDN);
@@ -2508,8 +2649,16 @@ public class WifiConfiguration implements Parcelable {
         dest.writeString(mPasspointManagementObjectTree);
         dest.writeInt(recentFailure.getAssociationStatus());
         dest.writeParcelable(mRandomizedMacAddress, flags);
+        dest.writeString(dppConnector);
+        dest.writeString(dppNetAccessKey);
+        dest.writeInt(dppNetAccessKeyExpiry);
+        dest.writeString(dppCsign);
         dest.writeInt(macRandomizationSetting);
         dest.writeInt(osu ? 1 : 0);
+        dest.writeString(oweTransIfaceName);
+        dest.writeInt(staId);
+        dest.writeLong(lastWpa2FallbackAttemptTime);
+        dest.writeInt(linkedNetworkId);
     }
 
     /** Implement the Parcelable interface {@hide} */
@@ -2523,6 +2672,7 @@ public class WifiConfiguration implements Parcelable {
                 config.mNetworkSelectionStatus.readFromParcel(in);
                 config.SSID = in.readString();
                 config.BSSID = in.readString();
+                config.shareThisAp = in.readInt() != 0;
                 config.apBand = in.readInt();
                 config.apChannel = in.readInt();
                 config.FQDN = in.readString();
@@ -2581,8 +2731,16 @@ public class WifiConfiguration implements Parcelable {
                 config.mPasspointManagementObjectTree = in.readString();
                 config.recentFailure.setAssociationStatus(in.readInt());
                 config.mRandomizedMacAddress = in.readParcelable(null);
+                config.dppConnector = in.readString();
+                config.dppNetAccessKey = in.readString();
+                config.dppNetAccessKeyExpiry = in.readInt();
+                config.dppCsign = in.readString();
                 config.macRandomizationSetting = in.readInt();
                 config.osu = in.readInt() != 0;
+                config.oweTransIfaceName = in.readString();
+                config.staId = in.readInt();
+                config.lastWpa2FallbackAttemptTime = in.readLong();
+                config.linkedNetworkId = in.readInt();
                 return config;
             }
 

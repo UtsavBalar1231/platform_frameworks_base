@@ -26,10 +26,12 @@ import android.net.wifi.INetworkRequestMatchCallback;
 import android.net.wifi.IOnWifiUsabilityStatsListener;
 import android.net.wifi.ISoftApCallback;
 import android.net.wifi.ITrafficStateCallback;
+import android.net.wifi.IWifiNotificationCallback;
 import android.net.wifi.IWifiManager;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiActivityEnergyInfo;
 import android.net.wifi.WifiConfiguration;
+import android.net.wifi.WifiDppConfig;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiNetworkSuggestion;
 import android.net.wifi.hotspot2.IProvisioningCallback;
@@ -462,6 +464,11 @@ public class BaseWifiService extends IWifiManager.Stub {
     }
 
     @Override
+    public void enableWifiCoverageExtendFeature(boolean enable) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public void stopDppSession() throws RemoteException {
         throw new UnsupportedOperationException();
     }
@@ -479,6 +486,142 @@ public class BaseWifiService extends IWifiManager.Stub {
 
     @Override
     public void updateWifiUsabilityScore(int seqNum, int score, int predictionHorizonSec) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean isWifiCoverageExtendFeatureEnabled() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean isExtendingWifi() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public String getCapabilities(String capaType) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public int dppAddBootstrapQrCode(String uri) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public int dppBootstrapGenerate(WifiDppConfig config) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public String dppGetUri(int bootstrap_id) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public int dppBootstrapRemove(int bootstrap_id) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public int dppListen(String frequency, int dpp_role, boolean qr_mutual, boolean netrole_ap) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void dppStopListen() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public int dppConfiguratorAdd(String curve, String key, int expiry) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public int dppConfiguratorRemove(int config_id) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public int dppStartAuth(WifiDppConfig config) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public String dppConfiguratorGetKey(int id) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public int getSoftApWifiGeneration() {
+        throw new UnsupportedOperationException();
+    }
+
+    /* QTI Vendor Dual STA support APIs */
+
+    @Override
+    public boolean setWifiEnabled2(String packageName, int staId, boolean enable) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean disconnect2(int staId, String packageName) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public WifiInfo getConnectionInfo2(int staId, String callingPackage) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean reassociate2(int staId, String packageName) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public ParceledListSlice getConfiguredNetworks2(int staId, String packageName) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void registerForWifiNotification(int staId, IBinder binder, IWifiNotificationCallback callback, int callbackIdentifier) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void unregisterForWifiNotification(int staId, int callbackIdentifier) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public int getNumConcurrentStaSupported() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean isWhitelistNetworkRoamingFeatureEnabled() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void enableWhitelistNetworkRoamingFeature(boolean enable) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean isUnsavedNetworkLinkingFeatureEnabled() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void enableUnsavedNetworkLinkingFeature(boolean enable) {
+        throw new UnsupportedOperationException();
+    }
+    @Override
+    public String doDriverCmd(String command) {
         throw new UnsupportedOperationException();
     }
 }

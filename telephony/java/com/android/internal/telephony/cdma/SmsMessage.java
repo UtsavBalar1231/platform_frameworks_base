@@ -616,6 +616,7 @@ public class SmsMessage extends SmsMessageBase {
                         if (parameterId == DESTINATION_ADDRESS) {
                             // Original address awlays indicates one sender's address for 3GPP2
                             // Here add recipient address support along with 3GPP
+                            env.destAddress = addr;
                             mRecipientAddress = addr;
                         }
                         break;

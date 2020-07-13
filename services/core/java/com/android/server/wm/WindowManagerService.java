@@ -293,7 +293,6 @@ public class WindowManagerService extends IWindowManager.Stub
 
     static final boolean PROFILE_ORIENTATION = false;
     static final boolean localLOGV = DEBUG;
-
     static WindowState mFocusingWindow;
     String mFocusingActivity;
     /** How much to multiply the policy's type layer, to reserve room

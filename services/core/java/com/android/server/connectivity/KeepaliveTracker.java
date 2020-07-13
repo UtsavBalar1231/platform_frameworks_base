@@ -174,6 +174,7 @@ public class KeepaliveTracker {
             // keepalives are sent cannot be reused by another app even if the fd gets closed by
             // the user. A null is acceptable here for backward compatibility of PacketKeepalive
             // API.
+            // TODO: don't accept null fd after legacy packetKeepalive API is removed.
             try {
                 if (fd != null) {
                     mFd = Os.dup(fd);

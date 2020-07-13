@@ -87,6 +87,7 @@ import com.android.systemui.Interpolators;
 import com.android.systemui.R;
 import com.android.systemui.SwipeHelper;
 import com.android.systemui.colorextraction.SysuiColorExtractor;
+import com.android.systemui.doze.DozeLog;
 import com.android.systemui.plugins.ActivityStarter;
 import com.android.systemui.plugins.FalsingManager;
 import com.android.systemui.plugins.statusbar.NotificationMenuRowPlugin;
@@ -503,6 +504,7 @@ public class NotificationStackScrollLayout extends ViewGroup implements ScrollAd
     private float mLastSentAppear;
     private float mLastSentExpandedHeight;
     private boolean mWillExpand;
+    private int mPulseReason;
 
     @Inject
     public NotificationStackScrollLayout(
@@ -5185,6 +5187,7 @@ public class NotificationStackScrollLayout extends ViewGroup implements ScrollAd
             return;
         }
         mPulsing = pulsing;
+        updateClipping();
         mAmbientState.setPulsing(pulsing);
         mSwipeHelper.setPulsing(pulsing);
         updateNotificationAnimationStates();
@@ -5192,6 +5195,11 @@ public class NotificationStackScrollLayout extends ViewGroup implements ScrollAd
         updateContentHeight();
         requestChildrenUpdate();
         notifyHeightChangeListener(null, animated);
+    }
+
+    public void setPulseReason(int pulseReason) {
+        mPulseReason = pulseReason;
+        updateClipping();
     }
 
     @ShadeViewRefactor(RefactorComponent.SHADE_VIEW)

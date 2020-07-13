@@ -80,6 +80,8 @@ import static android.os.Process.myUid;
 import static android.os.Process.readProcFile;
 import static android.os.Process.removeAllProcessGroups;
 import static android.os.Process.sendSignal;
+import static android.os.Process.setProcessGroup;
+import static android.os.Process.setCgroupProcsProcessGroup;
 import static android.os.Process.setThreadPriority;
 import static android.os.Process.setThreadScheduler;
 import static android.provider.Settings.Global.ALWAYS_FINISH_ACTIVITIES;
@@ -369,6 +371,7 @@ import com.android.server.wm.ActivityTaskManagerInternal;
 import com.android.server.wm.ActivityTaskManagerService;
 import com.android.server.wm.WindowManagerService;
 import com.android.server.wm.WindowProcessController;
+import com.android.server.ActivityTriggerService;
 
 import libcore.util.EmptyArray;
 
@@ -756,6 +759,10 @@ public class ActivityManagerService extends IActivityManager.Stub
             synchronized (this) {
                 mPidMap.put(app.pid, app);
             }
+            ActivityTriggerService atService = LocalServices.getService(ActivityTriggerService.class);
+            if(atService != null) {
+                atService.updateRecord(app.hostingRecord, app.info, app.pid, ActivityTriggerService.PROC_ADDED_NOTIFICATION);
+            }
             mAtmInternal.onProcessMapped(app.pid, app.getWindowProcessController());
         }
 
@@ -774,6 +781,10 @@ public class ActivityManagerService extends IActivityManager.Stub
                 }
             }
             if (removed) {
+                ActivityTriggerService atService = LocalServices.getService(ActivityTriggerService.class);
+                if(atService != null) {
+                    atService.updateRecord(app.hostingRecord, app.info, app.pid, ActivityTriggerService.PROC_REMOVED_NOTIFICATION);
+                }
                 mAtmInternal.onProcessUnMapped(app.pid);
             }
         }
@@ -3566,7 +3577,6 @@ public class ActivityManagerService extends IActivityManager.Stub
                             false /* knownToBeDead */,
                             0 /* intentFlags */,
                            sNullHostingRecord /* hostingRecord */,
-                           ZYGOTE_POLICY_FLAG_EMPTY,
                            false /* allowWhileBooting */,
                            false /* isolated */,
                            true /* keepIfLarge */);
@@ -4709,6 +4719,9 @@ public class ActivityManagerService extends IActivityManager.Stub
             } else {
                 Slog.i(TAG, "Force stopping u" + userId + ": " + reason);
             }
+            if (mUxPerf != null) {
+                mUxPerf.perfHint(BoostFramework.VENDOR_HINT_KILL, packageName, appId, 0);
+            }
 
             if (mUxPerf != null) {
                 mUxPerf.perfHint(BoostFramework.VENDOR_HINT_KILL, packageName, appId, 0);
@@ -4716,6 +4729,7 @@ public class ActivityManagerService extends IActivityManager.Stub
 
             mAppErrors.resetProcessCrashTimeLocked(packageName == null, appId, userId);
         }
+        mForceStopKill = true;
 
         boolean didSomething = mProcessList.killPackageProcessesLocked(packageName, appId, userId,
                 ProcessList.INVALID_ADJ, callerWillRestart, true /* allowRestart */, doit,

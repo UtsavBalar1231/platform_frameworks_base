@@ -30,6 +30,7 @@ import android.text.TextUtils;
 import android.util.EventLog;
 import android.util.Log;
 
+import android.os.SystemProperties;
 import androidx.annotation.VisibleForTesting;
 
 import com.android.settingslib.R;
@@ -699,7 +700,7 @@ public class CachedBluetoothDevice implements Comparable<CachedBluetoothDevice> 
                     connect(false);
                 }
             } else if (mIsBondingInitiatedLocally) {
-                connect(false);
+                 connect(false);
             }
         }
     }
@@ -850,10 +851,11 @@ public class CachedBluetoothDevice implements Comparable<CachedBluetoothDevice> 
             // The pairing dialog now warns of phone-book access for paired devices.
             // No separate prompt is displayed after pairing.
             if (mDevice.getPhonebookAccessPermission() == BluetoothDevice.ACCESS_UNKNOWN) {
-                if (mDevice.getBluetoothClass().getDeviceClass()
+                if ((mDevice.getBluetoothClass() != null) &&
+                   (mDevice.getBluetoothClass().getDeviceClass()
                         == BluetoothClass.Device.AUDIO_VIDEO_HANDSFREE ||
                     mDevice.getBluetoothClass().getDeviceClass()
-                        == BluetoothClass.Device.AUDIO_VIDEO_WEARABLE_HEADSET) {
+                        == BluetoothClass.Device.AUDIO_VIDEO_WEARABLE_HEADSET)) {
                     EventLog.writeEvent(0x534e4554, "138529441", -1, "");
                 }
                 mDevice.setPhonebookAccessPermission(BluetoothDevice.ACCESS_REJECTED);
@@ -1132,8 +1134,16 @@ public class CachedBluetoothDevice implements Comparable<CachedBluetoothDevice> 
      */
     public boolean isConnectedA2dpDevice() {
         A2dpProfile a2dpProfile = mProfileManager.getA2dpProfile();
-        return a2dpProfile != null && a2dpProfile.getConnectionStatus(mDevice) ==
+        A2dpSinkProfile a2dpSinkProfile = mProfileManager.getA2dpSinkProfile();
+        Log.i(TAG, "a2dpProfile :" + a2dpProfile + " a2dpSinkProfile :" + a2dpSinkProfile);
+        if (a2dpProfile != null) {
+            return a2dpProfile.getConnectionStatus(mDevice) ==
                 BluetoothProfile.STATE_CONNECTED;
+        } else if (a2dpSinkProfile != null) {
+            return a2dpSinkProfile.getConnectionStatus(mDevice) ==
+                BluetoothProfile.STATE_CONNECTED;
+        }
+        return false;
     }
 
     /**

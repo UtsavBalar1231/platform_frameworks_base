@@ -51,6 +51,9 @@ public class TaskTapPointerEventListener implements PointerEventListener {
             DisplayContent displayContent) {
         mService = service;
         mDisplayContent = displayContent;
+        if (mPerfObj == null) {
+            mPerfObj = new BoostFramework();
+        }
     }
 
     @Override

@@ -128,11 +128,11 @@ public class QSPanel extends LinearLayout implements Tunable, Callback, Brightne
         mFooter = new QSSecurityFooter(this, context);
         addView(mFooter.getView());
 
-        updateResources();
-
         mBrightnessController = new BrightnessController(getContext(),
                 findViewById(R.id.brightness_slider));
         mDumpController = dumpController;
+
+        updateResources();
     }
 
     @Override
@@ -297,6 +297,9 @@ public class QSPanel extends LinearLayout implements Tunable, Callback, Brightne
 
         updatePageIndicator();
 
+        for (TileRecord r : mRecords) {
+            r.tile.clearState();
+        }
         if (mListening) {
             refreshAllTiles();
         }

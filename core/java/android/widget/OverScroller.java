@@ -23,6 +23,7 @@ import android.util.Log;
 import android.view.ViewConfiguration;
 import android.view.animation.AnimationUtils;
 import android.view.animation.Interpolator;
+import android.os.SystemProperties;
 
 /**
  * This class encapsulates scrolling with the ability to overshoot the bounds
@@ -546,6 +547,7 @@ public class OverScroller {
 
     static class SplineOverScroller {
         // Initial position
+        private Context mContext;
         private int mStart;
 
         // Current position
@@ -647,6 +649,7 @@ public class OverScroller {
         }
 
         SplineOverScroller(Context context) {
+            mContext = context;
             mFinished = true;
             final float ppi = context.getResources().getDisplayMetrics().density * 160.0f;
             mPhysicalCoeff = SensorManager.GRAVITY_EARTH // g (m/s^2)
@@ -848,7 +851,7 @@ public class OverScroller {
         }
 
         void notifyEdgeReached(int start, int end, int over) {
-            // mState is used to detect successive notifications 
+            // mState is used to detect successive notifications
             if (mState == SPLINE) {
                 mOver = over;
                 mStartTime = AnimationUtils.currentAnimationTimeMillis();
@@ -955,8 +958,8 @@ public class OverScroller {
                     final float t = (float) (currentTime) / mDuration;
                     final float t2 = t * t;
                     final float sign = Math.signum(mVelocity);
-                    distance = sign * mOver * (3.0f * t2 - 2.0f * t * t2); 
-                    mCurrVelocity = sign * mOver * 6.0f * (- t + t2); 
+                    distance = sign * mOver * (3.0f * t2 - 2.0f * t * t2);
+                    mCurrVelocity = sign * mOver * 6.0f * (- t + t2);
                     break;
                 }
             }

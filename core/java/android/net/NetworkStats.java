@@ -712,6 +712,7 @@ public class NetworkStats implements Parcelable {
                 entry.operations += operations[i];
             }
         }
+
         return entry;
     }
 

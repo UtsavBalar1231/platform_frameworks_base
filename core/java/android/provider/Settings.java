@@ -4315,6 +4315,16 @@ public final class Settings {
         public static final Validator LOCKSCREEN_SOUNDS_ENABLED_VALIDATOR = BOOLEAN_VALIDATOR;
 
         /**
+         * Whether to play tone when the mo call is connected.
+         * @hide
+         */
+        @UnsupportedAppUsage
+        public static final String CALL_CONNECTED_TONE_ENABLED = "call_connected_tone_enabled";
+
+        /** @hide */
+        public static final Validator CALL_CONNECTED_TONE_ENABLED_VALIDATOR = BOOLEAN_VALIDATOR;
+
+        /**
          * Whether the lockscreen should be completely disabled.
          * @hide
          */
@@ -4731,6 +4741,7 @@ public final class Settings {
             POWER_SOUNDS_ENABLED,       // moved to global
             DOCK_SOUNDS_ENABLED,        // moved to global
             LOCKSCREEN_SOUNDS_ENABLED,
+            CALL_CONNECTED_TONE_ENABLED,
             SHOW_WEB_SUGGESTIONS,
             SIP_CALL_OPTIONS,
             SIP_RECEIVE_CALLS,
@@ -4851,6 +4862,7 @@ public final class Settings {
             PRIVATE_SETTINGS.add(POWER_SOUNDS_ENABLED);
             PRIVATE_SETTINGS.add(DOCK_SOUNDS_ENABLED);
             PRIVATE_SETTINGS.add(LOCKSCREEN_SOUNDS_ENABLED);
+            PRIVATE_SETTINGS.add(CALL_CONNECTED_TONE_ENABLED);
             PRIVATE_SETTINGS.add(LOCKSCREEN_DISABLED);
             PRIVATE_SETTINGS.add(LOW_BATTERY_SOUND);
             PRIVATE_SETTINGS.add(DESK_DOCK_SOUND);
@@ -4953,6 +4965,7 @@ public final class Settings {
             VALIDATORS.put(WINDOW_ORIENTATION_LISTENER_LOG,
                     WINDOW_ORIENTATION_LISTENER_LOG_VALIDATOR);
             VALIDATORS.put(LOCKSCREEN_SOUNDS_ENABLED, LOCKSCREEN_SOUNDS_ENABLED_VALIDATOR);
+            VALIDATORS.put(CALL_CONNECTED_TONE_ENABLED, CALL_CONNECTED_TONE_ENABLED_VALIDATOR);
             VALIDATORS.put(LOCKSCREEN_DISABLED, LOCKSCREEN_DISABLED_VALIDATOR);
             VALIDATORS.put(SIP_RECEIVE_CALLS, SIP_RECEIVE_CALLS_VALIDATOR);
             VALIDATORS.put(SIP_CALL_OPTIONS, SIP_CALL_OPTIONS_VALIDATOR);
@@ -5382,6 +5395,7 @@ public final class Settings {
             MOVED_TO_GLOBAL.add(Settings.Global.NITZ_UPDATE_SPACING);
             MOVED_TO_GLOBAL.add(Settings.Global.NTP_SERVER);
             MOVED_TO_GLOBAL.add(Settings.Global.NTP_TIMEOUT);
+            MOVED_TO_GLOBAL.add(Settings.Global.NTP_SERVER_2);
             MOVED_TO_GLOBAL.add(Settings.Global.PDP_WATCHDOG_ERROR_POLL_COUNT);
             MOVED_TO_GLOBAL.add(Settings.Global.PDP_WATCHDOG_LONG_POLL_INTERVAL_MS);
             MOVED_TO_GLOBAL.add(Settings.Global.PDP_WATCHDOG_MAX_PDP_RESET_FAIL_COUNT);
@@ -5409,12 +5423,15 @@ public final class Settings {
             MOVED_TO_GLOBAL.add(Settings.Global.WIFI_SAVED_STATE);
             MOVED_TO_GLOBAL.add(Settings.Global.WIFI_SUPPLICANT_SCAN_INTERVAL_MS);
             MOVED_TO_GLOBAL.add(Settings.Global.WIFI_SUSPEND_OPTIMIZATIONS_ENABLED);
+            MOVED_TO_GLOBAL.add(Settings.Global.WIFI_COVERAGE_EXTEND_FEATURE_ENABLED);
             MOVED_TO_GLOBAL.add(Settings.Global.WIFI_VERBOSE_LOGGING_ENABLED);
             MOVED_TO_GLOBAL.add(Settings.Global.WIFI_ENHANCED_AUTO_JOIN);
             MOVED_TO_GLOBAL.add(Settings.Global.WIFI_NETWORK_SHOW_RSSI);
             MOVED_TO_GLOBAL.add(Settings.Global.WIFI_WATCHDOG_ON);
             MOVED_TO_GLOBAL.add(Settings.Global.WIFI_WATCHDOG_POOR_NETWORK_TEST_ENABLED);
             MOVED_TO_GLOBAL.add(Settings.Global.WIFI_P2P_PENDING_FACTORY_RESET);
+            MOVED_TO_GLOBAL.add(Settings.Global.WIFI_WHIELIST_ROAMING_FEATURE_ENABLED);
+            MOVED_TO_GLOBAL.add(Settings.Global.WIFI_UNSAVED_NETWORK_LINKING_FEATURE_ENABLED);
             MOVED_TO_GLOBAL.add(Settings.Global.WIMAX_NETWORKS_AVAILABLE_NOTIFICATION_ON);
             MOVED_TO_GLOBAL.add(Settings.Global.PACKAGE_VERIFIER_ENABLE);
             MOVED_TO_GLOBAL.add(Settings.Global.PACKAGE_VERIFIER_TIMEOUT);
@@ -6402,6 +6419,16 @@ public final class Settings {
          * @hide
          */
         public static final int LOCATION_CHANGER_QUICK_SETTINGS = 2;
+
+        /**
+         * Setting to configure Wifi disconnect delay duration in seconds.
+         * @hide
+         **/
+        public static final String WIFI_DISCONNECT_DELAY_DURATION =
+                "wifi_disconnect_delay_duration";
+
+        private static final Validator WIFI_DISCONNECT_DELAY_DURATION_VALIDATOR =
+                NON_NEGATIVE_INTEGER_VALIDATOR;
 
         /**
          * Location mode is off.
@@ -9426,6 +9453,7 @@ public final class Settings {
             ZEN_SETTINGS_SUGGESTION_VIEWED,
             CHARGING_SOUNDS_ENABLED,
             CHARGING_VIBRATION_ENABLED,
+            WIFI_DISCONNECT_DELAY_DURATION,
             ACCESSIBILITY_NON_INTERACTIVE_UI_TIMEOUT_MS,
             ACCESSIBILITY_INTERACTIVE_UI_TIMEOUT_MS,
             NOTIFICATION_NEW_INTERRUPTION_MODEL,
@@ -9615,6 +9643,7 @@ public final class Settings {
             VALIDATORS.put(ZEN_SETTINGS_SUGGESTION_VIEWED, BOOLEAN_VALIDATOR);
             VALIDATORS.put(CHARGING_SOUNDS_ENABLED, BOOLEAN_VALIDATOR);
             VALIDATORS.put(CHARGING_VIBRATION_ENABLED, BOOLEAN_VALIDATOR);
+            VALIDATORS.put(WIFI_DISCONNECT_DELAY_DURATION, WIFI_DISCONNECT_DELAY_DURATION_VALIDATOR);
             VALIDATORS.put(ACCESSIBILITY_NON_INTERACTIVE_UI_TIMEOUT_MS,
                     NON_NEGATIVE_INTEGER_VALIDATOR);
             VALIDATORS.put(ACCESSIBILITY_INTERACTIVE_UI_TIMEOUT_MS, NON_NEGATIVE_INTEGER_VALIDATOR);
@@ -10576,6 +10605,8 @@ public final class Settings {
        public static final String NTP_SERVER = "ntp_server";
        /** Timeout in milliseconds to wait for NTP server. {@hide} */
        public static final String NTP_TIMEOUT = "ntp_timeout";
+       /** Secondary NTP server. {@hide} */
+       public static final String NTP_SERVER_2 = "ntp_server_2";
 
        /** {@hide} */
        public static final String STORAGE_BENCHMARK_INTERVAL = "storage_benchmark_interval";
@@ -11355,6 +11386,30 @@ public final class Settings {
         */
        public static final String WIFI_VERBOSE_LOGGING_ENABLED =
                "wifi_verbose_logging_enabled";
+
+       /**
+        * Setting to enable Wi-Fi coverage extend feature; disabled by default, and setting to 1
+        * will enable it.
+        * @hide
+        */
+       public static final String WIFI_COVERAGE_EXTEND_FEATURE_ENABLED =
+               "wifi_coverage_extend_feature_enabled";
+
+       /**
+        * Setting to enable Wi-Fi whitelist network roaming; disabled by default, and setting to 1
+        * will enable it.
+        * @hide
+        */
+       public static final String WIFI_WHIELIST_ROAMING_FEATURE_ENABLED =
+               "wifi_whitelist_roaming_feature_enabled";
+
+       /**
+        * Setting to enable Wi-Fi unsaved network linking feature; disabled by default, and setting to 1
+        * will enable it.
+        * @hide
+        */
+       public static final String WIFI_UNSAVED_NETWORK_LINKING_FEATURE_ENABLED =
+               "wifi_unsaved_network_linking_feature_enabled";
 
         /**
          * Setting to enable connected MAC randomization in Wi-Fi; disabled by default, and

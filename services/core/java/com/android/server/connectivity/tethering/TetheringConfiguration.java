@@ -37,6 +37,7 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.res.Resources;
 import android.net.ConnectivityManager;
+import android.os.SystemProperties;
 import android.net.util.SharedLog;
 import android.provider.Settings;
 import android.telephony.SubscriptionManager;
@@ -98,6 +99,7 @@ public class TetheringConfiguration {
     public final int provisioningCheckPeriod;
 
     public final int subId;
+    private static String fstInterfaceName = "bond0";
 
     public TetheringConfiguration(Context ctx, SharedLog log, int id) {
         final SharedLog configLog = log.forSubComponent("config");
@@ -109,7 +111,11 @@ public class TetheringConfiguration {
         // TODO: Evaluate deleting this altogether now that Wi-Fi always passes
         // us an interface name. Careful consideration needs to be given to
         // implications for Settings and for provisioning checks.
-        tetherableWifiRegexs = getResourceStringArray(res, config_tether_wifi_regexs);
+        if (SystemProperties.getInt("persist.vendor.fst.softap.en", 0) == 1) {
+            tetherableWifiRegexs = new String[] { fstInterfaceName };
+        } else {
+            tetherableWifiRegexs = getResourceStringArray(res, config_tether_wifi_regexs);
+        }
         tetherableBluetoothRegexs = getResourceStringArray(res, config_tether_bluetooth_regexs);
 
         isDunRequired = checkDunRequired(ctx, subId);
@@ -128,6 +134,14 @@ public class TetheringConfiguration {
                 0 /* No periodic re-check */);
 
         configLog.log(toString());
+    }
+
+    public static void setFstInterfaceName(String name) {
+        fstInterfaceName = name;
+    }
+
+    public static String getFstInterfaceName() {
+        return fstInterfaceName;
     }
 
     public boolean isUsb(String iface) {

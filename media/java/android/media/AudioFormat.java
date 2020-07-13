@@ -585,6 +585,12 @@ public final class AudioFormat implements Parcelable {
             case ENCODING_AAC_ELD:
             case ENCODING_AAC_XHE:
             case ENCODING_AC4:
+            case ENCODING_AMRNB:
+            case ENCODING_AMRWB:
+            case ENCODING_EVRC:
+            case ENCODING_EVRCB:
+            case ENCODING_EVRCWB:
+            case ENCODING_EVRCNW:
             case ENCODING_E_AC3_JOC:
             case ENCODING_DOLBY_MAT:
             case ENCODING_AMRNB:
@@ -650,6 +656,12 @@ public final class AudioFormat implements Parcelable {
             case ENCODING_AAC_ELD:
             case ENCODING_AAC_XHE:
             case ENCODING_AC4:
+            case ENCODING_AMRNB:
+            case ENCODING_AMRWB:
+            case ENCODING_EVRC:
+            case ENCODING_EVRCB:
+            case ENCODING_EVRCWB:
+            case ENCODING_EVRCNW:
             case ENCODING_E_AC3_JOC:
             case ENCODING_DOLBY_MAT:
             case ENCODING_AMRNB:
@@ -966,6 +978,12 @@ public final class AudioFormat implements Parcelable {
                 case ENCODING_AAC_ELD:
                 case ENCODING_AAC_XHE:
                 case ENCODING_AC4:
+                case ENCODING_AMRNB:
+                case ENCODING_AMRWB:
+                case ENCODING_EVRC:
+                case ENCODING_EVRCB:
+                case ENCODING_EVRCWB:
+                case ENCODING_EVRCNW:
                 case ENCODING_E_AC3_JOC:
                 case ENCODING_DOLBY_MAT:
                 case ENCODING_AMRNB:
@@ -1192,6 +1210,12 @@ public final class AudioFormat implements Parcelable {
         ENCODING_AAC_ELD,
         ENCODING_AAC_XHE,
         ENCODING_AC4,
+        ENCODING_AMRNB,
+        ENCODING_AMRWB,
+        ENCODING_EVRC,
+        ENCODING_EVRCB,
+        ENCODING_EVRCWB,
+        ENCODING_EVRCNW,
         ENCODING_E_AC3_JOC,
         ENCODING_DOLBY_MAT,
         ENCODING_AMRNB,

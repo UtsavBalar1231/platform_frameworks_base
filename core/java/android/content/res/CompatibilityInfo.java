@@ -151,7 +151,6 @@ public class CompatibilityInfo implements Parcelable {
                 // Let the user decide.
                 compatFlags |= NEEDS_SCREEN_COMPAT;
             }
-
             int density = appInfo.getOverrideDensity();
             if(density != 0) {
                 applicationDensity = density;
@@ -270,6 +269,10 @@ public class CompatibilityInfo implements Parcelable {
         }
 
         mCompatibilityFlags = compatFlags;
+
+        Log.d(TAG, "mCompatibilityFlags - " + Integer.toHexString(mCompatibilityFlags));
+        Log.d(TAG, "applicationDensity - " + applicationDensity);
+        Log.d(TAG, "applicationScale - " + applicationScale);
     }
 
     private CompatibilityInfo(int compFlags,

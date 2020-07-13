@@ -26,8 +26,10 @@ import android.os.RemoteException;
 import android.os.SystemClock;
 import android.os.UserHandle;
 import android.telecom.TelecomManager;
+import android.telephony.ServiceState;
 import android.util.AttributeSet;
 import android.util.Slog;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
@@ -39,6 +41,7 @@ import com.android.internal.telephony.IccCardConstants.State;
 import com.android.internal.util.EmergencyAffordanceManager;
 import com.android.internal.widget.LockPatternUtils;
 import com.android.systemui.util.EmergencyDialerConstants;
+import com.android.systemui.R;
 
 /**
  * This class implements a smart emergency button that updates itself based
@@ -70,6 +73,11 @@ public class EmergencyButton extends Button {
 
         @Override
         public void onPhoneStateChanged(int phoneState) {
+            updateEmergencyCallButton();
+        }
+
+        @Override
+        public void onServiceStateChanged(int subId, ServiceState state) {
             updateEmergencyCallButton();
         }
     };
@@ -192,7 +200,7 @@ public class EmergencyButton extends Button {
         }
     }
 
-    private void updateEmergencyCallButton() {
+    public void updateEmergencyCallButton() {
         boolean visible = false;
         if (mIsVoiceCapable) {
             // Emergency calling requires voice capability.
@@ -205,8 +213,14 @@ public class EmergencyButton extends Button {
                     // Some countries can't handle emergency calls while SIM is locked.
                     visible = mEnableEmergencyCallWhileSimLocked;
                 } else {
-                    // Only show if there is a secure screen (pin/pattern/SIM pin/SIM puk);
-                    visible = mLockPatternUtils.isSecure(KeyguardUpdateMonitor.getCurrentUser());
+                    // Show if there is a secure screen (pin/pattern/SIM pin/SIM puk) or config set
+                    visible = mLockPatternUtils.isSecure(KeyguardUpdateMonitor.getCurrentUser()) ||
+                            mContext.getResources().getBoolean(R.bool.config_showEmergencyButton);
+                }
+
+                if (mContext.getResources().getBoolean(R.bool.kg_hide_emgcy_btn_when_oos)) {
+                    KeyguardUpdateMonitor monitor = KeyguardUpdateMonitor.getInstance(mContext);
+                    visible = visible && !monitor.isOOS();
                 }
             }
         }

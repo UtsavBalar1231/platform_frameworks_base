@@ -341,6 +341,9 @@ public final class SurfaceControl implements Parcelable {
      */
     private static final int SURFACE_OPAQUE = 0x02;
 
+    /* built-in physical display ids (keep in sync with ISurfaceComposer.h)
+     * these are different from the logical display ids used elsewhere in the framework */
+
     // Display power modes.
     /**
      * Display power mode off: used while blanking the screen.
@@ -2575,7 +2578,7 @@ public final class SurfaceControl implements Parcelable {
             return this;
         }
 
-        /** flag the transaction as an animation 
+        /** flag the transaction as an animation
          * @hide
          */
         public Transaction setAnimationTransaction() {

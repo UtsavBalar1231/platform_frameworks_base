@@ -78,6 +78,8 @@
 #include <cutils/ashmem.h>
 #include <cutils/fs.h>
 #include <cutils/multiuser.h>
+#include <cutils/properties.h>
+#include <cutils/sched_policy.h>
 #include <private/android_filesystem_config.h>
 #include <utils/String8.h>
 #include <utils/Trace.h>
@@ -565,7 +567,14 @@ static void EnableDebugger() {
     if (getrlimit(RLIMIT_CORE, &rl) == -1) {
       ALOGE("getrlimit(RLIMIT_CORE) failed");
     } else {
-      rl.rlim_cur = 0;
+      char prop_value[PROPERTY_VALUE_MAX];
+      property_get("persist.debug.trace", prop_value, "0");
+      if (prop_value[0] == '1') {
+        ALOGI("setting RLIM to infinity");
+        rl.rlim_cur = RLIM_INFINITY;
+      } else {
+        rl.rlim_cur = 0;
+      }
       if (setrlimit(RLIMIT_CORE, &rl) == -1) {
         ALOGE("setrlimit(RLIMIT_CORE) failed");
       }
@@ -1277,6 +1286,7 @@ static jlong CalculateCapabilities(JNIEnv* env, jint uid, jint gid, jintArray gi
     capabilities |= (1LL << CAP_NET_RAW);
     capabilities |= (1LL << CAP_NET_BIND_SERVICE);
     capabilities |= (1LL << CAP_SYS_NICE);
+    capabilities |= (1LL << CAP_NET_ADMIN);
   }
 
   if (multiuser_get_app_id(uid) == AID_NETWORK_STACK) {

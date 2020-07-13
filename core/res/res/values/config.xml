@@ -557,6 +557,9 @@
     <!-- Boolean indicating whether the wifi chipset has dual frequency band support -->
     <bool translatable="false" name="config_wifi_dual_band_support">false</bool>
 
+    <!-- Boolean to provide support to keep wifi5 symbol for 8SS supported device and 11ax AP -->
+    <bool translateble="false" name="config_wifi_report_he_ready">true</bool>
+
     <!-- Maximum number of concurrent WiFi interfaces in AP mode -->
     <integer translatable="false" name="config_wifi_max_ap_interfaces">1</integer>
 
@@ -730,6 +733,9 @@
     <!-- Wifi driver supports Automatic channel selection (ACS) for softap -->
     <bool translatable="false" name="config_wifi_softap_acs_supported">false</bool>
 
+    <!-- Wifi driver Automatic channel selection (ACS) for softap to include dfs channels -->
+    <bool translatable="false" name="config_wifi_softap_acs_include_dfs">false</bool>
+
     <!-- Channel list restriction to Automatic channel selection (ACS) for softap. If the device
          doesn't want to restrict channels this should be empty. Value is a comma separated channel
          string and/or channel range string like '1-6,11' -->
@@ -737,6 +743,9 @@
 
     <!-- Wifi driver supports IEEE80211AC for softap -->
     <bool translatable="false" name="config_wifi_softap_ieee80211ac_supported">false</bool>
+
+    <!-- Wifi driver supports IEEE80211AX for softap -->
+    <bool translatable="false" name="config_wifi_softap_ieee80211ax_supported">false</bool>
 
     <!-- Indicates that local-only hotspot should be brought up at 5GHz.  This option is
          for automotive builds only (the one that have PackageManager#FEATURE_AUTOMOTIVE) -->
@@ -750,6 +759,9 @@
 
     <!-- Indicates that wifi link probing is supported on this device -->
     <bool translatable="false" name="config_wifi_link_probing_supported">false</bool>
+
+    <!-- Wifi framework supports secondary sta supported -->
+    <bool translatable="false" name="config_wifi_framework_secondary_sta_supported">false</bool>
 
     <!-- Flag indicating whether we should enable the automatic brightness.
          Software implementation will be used if config_hardware_auto_brightness_available is not set -->
@@ -1892,6 +1904,9 @@
         <item>network,false,false,false,false,true,true,true,1,2</item>
         -->
     </string-array>
+
+    <!-- Component name of the combo network location provider. -->
+    <string name="config_comboNetworkLocationProvider" translatable="false">com.qualcomm.location</string>
 
     <!-- Boolean indicating if current platform supports bluetooth SCO for off call
     use cases -->
@@ -3890,6 +3905,15 @@
     <!-- Package name for ManagedProvisioning which is responsible for provisioning work profiles. -->
     <string name="config_managed_provisioning_package" translatable="false">com.android.managedprovisioning</string>
 
+    <!-- The duration (in milliseconds) for the outgoing sms authorization request to timeout.-->
+    <integer name="config_sms_authorization_timeout_ms">0</integer>
+
+    <!-- Enable sms authorization framework-->
+    <bool name="config_sms_authorization_enabled">false</bool>
+
+    <!-- whether to enable primarycard -->
+    <bool name="config_primarycard">false</bool>
+
     <!-- Whether or not swipe up gesture's opt-in setting is available on this device -->
     <bool name="config_swipe_up_gesture_setting_available">false</bool>
 
@@ -3924,6 +3948,10 @@
 
     <!-- Whether or not the "SMS app service" feature is enabled -->
     <bool name="config_useSmsAppService">true</bool>
+
+    <!-- List of names that represent dual SoftAp interfaces. -->
+    <string-array translatable="false" name="config_wifi_dual_sap_interfaces">
+    </string-array>
 
     <!-- Class name for the InputEvent compatibility processor override.
          Empty string means use the default compatibility processor
@@ -4297,6 +4325,12 @@
 
     <!-- Enable sms authorization framework-->
     <bool name="config_sms_authorization_enabled">false</bool>
+
+    <!-- Flag to enable/disable shutdown animation. -->
+    <bool name="config_shutdownAnimationEnabled">false</bool>
+
+    <!-- value of shutdown animation duration, default is 3000 ms -->
+    <integer name="config_shutdownAnimationDurationMs">3000</integer>
 
     <!-- pdp data retry for cause 29, 33 and 55-->
     <bool name="config_pdp_retry_for_29_33_55_enabled">false</bool>

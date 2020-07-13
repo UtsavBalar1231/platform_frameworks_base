@@ -819,6 +819,10 @@ class ScreenRotationAnimation {
                 mRotateExitAnimation = null;
                 mRotateExitTransformation.clear();
             }
+            if (mPerf != null && mIsPerfLockAcquired) {
+                mPerf.perfLockRelease();
+                mIsPerfLockAcquired = false;
+            }
         }
 
         if (!mMoreRotateEnter && (!TWO_PHASE_ANIMATION || (!mMoreStartEnter && !mMoreFinishEnter))) {
@@ -842,6 +846,10 @@ class ScreenRotationAnimation {
                 mRotateEnterAnimation = null;
                 mRotateEnterTransformation.clear();
             }
+            if (mPerf != null && mIsPerfLockAcquired) {
+                mPerf.perfLockRelease();
+                mIsPerfLockAcquired = false;
+            }
         }
 
         if (USE_CUSTOM_BLACK_FRAME && !mMoreStartFrame && !mMoreRotateFrame && !mMoreFinishFrame) {
@@ -862,6 +870,10 @@ class ScreenRotationAnimation {
                 mRotateFrameAnimation.cancel();
                 mRotateFrameAnimation = null;
                 mRotateFrameTransformation.clear();
+            }
+            if (mPerf != null && mIsPerfLockAcquired) {
+                mPerf.perfLockRelease();
+                mIsPerfLockAcquired = false;
             }
         }
 

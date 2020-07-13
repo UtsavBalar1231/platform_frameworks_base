@@ -3595,4 +3595,8 @@ public class NotificationPanelView extends PanelView implements
         mOnReinflationListener = onReinflationListener;
     }
 
+    public void setPulseReason(int reason) {
+        mNotificationStackScroller.setPulseReason(reason);
+    }
+
 }

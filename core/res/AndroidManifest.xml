@@ -159,6 +159,7 @@
     <protected-broadcast android:name="android.bluetooth.device.action.CONNECTION_ACCESS_REQUEST" />
     <protected-broadcast android:name="android.bluetooth.device.action.SDP_RECORD" />
     <protected-broadcast android:name="android.bluetooth.device.action.BATTERY_LEVEL_CHANGED" />
+    <protected-broadcast android:name="android.bluetooth.device.action.TWS_PLUS_DEVICE_PAIR" />
     <protected-broadcast android:name="android.bluetooth.devicepicker.action.LAUNCH" />
     <protected-broadcast android:name="android.bluetooth.devicepicker.action.DEVICE_SELECTED" />
     <protected-broadcast android:name="org.codeaurora.intent.bluetooth.action.REMOTE_ISSUE_OCCURRED" />
@@ -359,7 +360,29 @@
     <protected-broadcast android:name="com.android.server.wifi.wakeup.OPEN_WIFI_PREFERENCES" />
     <protected-broadcast android:name="com.android.server.wifi.wakeup.OPEN_WIFI_SETTINGS" />
     <protected-broadcast android:name="com.android.server.wifi.wakeup.TURN_OFF_WIFI_WAKE" />
+
+    <protected-broadcast android:name="com.qualcomm.qti.wigig.WIGIG_CREDENTIAL_CHANGED" />
+    <protected-broadcast android:name="com.qualcomm.qti.wigig.WIGIG_STATE_CHANGED" />
+    <protected-broadcast android:name="com.qualcomm.qti.wigig.WIGIG_AP_STATE_CHANGED" />
+    <protected-broadcast android:name="com.qualcomm.qti.wigig.supplicant.CONNECTION_CHANGE" />
+    <protected-broadcast android:name="com.qualcomm.qti.wigig.STATE_CHANGE" />
+    <protected-broadcast android:name="com.qualcomm.qti.wigig.CONFIGURED_NETWORKS_CHANGE" />
+    <protected-broadcast android:name="com.qualcomm.qti.wigig.SCAN_RESULTS" />
+    <protected-broadcast android:name="com.qualcomm.qti.wigig.LINK_CONFIGURATION_CHANGED" />
+    <protected-broadcast android:name="com.qualcomm.qti.wigig.WIGIG_RATE_UPGRADE_STATE_CHANGED" />
+    <protected-broadcast android:name="com.qualcomm.qti.wigig.RSSI_CHANGED" />
+    <protected-broadcast android:name="wigig_scan_available" />
+    <protected-broadcast android:name="android.net.wigig.p2p.STATE_CHANGED" />
+    <protected-broadcast android:name="android.net.wigig.p2p.CONNECTION_STATE_CHANGE" />
+    <protected-broadcast android:name="android.net.wigig.p2p.PEERS_CHANGED" />
+    <protected-broadcast android:name="android.net.wigig.p2p.DISCOVERY_STATE_CHANGE" />
+    <protected-broadcast android:name="android.net.wigig.p2p.THIS_DEVICE_CHANGED" />
+    <protected-broadcast android:name="android.net.wigig.p2p.PERSISTENT_GROUPS_CHANGED" />
+
     <protected-broadcast android:name="android.net.wifi.WIFI_STATE_CHANGED" />
+    <protected-broadcast android:name="com.qualcomm.qti.net.wifi.WIFI_DATA_STALL" />
+    <protected-broadcast android:name="com.qualcomm.qti.net.wifi.WIFI_NETWORK_DISCONNECTION" />
+    <protected-broadcast android:name="com.qualcomm.qti.net.wifi.WIFI_DHCP_FAILURE" />
     <protected-broadcast android:name="android.net.wifi.WIFI_AP_STATE_CHANGED" />
     <protected-broadcast android:name="android.net.wifi.WIFI_CREDENTIAL_CHANGED" />
     <protected-broadcast android:name="android.net.wifi.WIFI_SCAN_AVAILABLE" />
@@ -384,6 +407,9 @@
     <protected-broadcast android:name="android.net.wifi.p2p.PEERS_CHANGED" />
     <protected-broadcast android:name="android.net.wifi.p2p.CONNECTION_STATE_CHANGE" />
     <protected-broadcast android:name="android.net.wifi.p2p.PERSISTENT_GROUPS_CHANGED" />
+    <protected-broadcast android:name="com.qualcomm.qti.net.wifi.DPP_EVENT" />
+    <protected-broadcast android:name="android.net.wifi.COUNTRY_CODE_CHANGED" />
+    <protected-broadcast android:name="com.qualcomm.qti.net.wifi.WIFI_DISCONNECT_IN_PROGRESS" />
     <protected-broadcast android:name="android.net.conn.TETHER_STATE_CHANGED" />
     <protected-broadcast android:name="android.net.conn.INET_CONDITION_ACTION" />
     <protected-broadcast android:name="android.net.conn.NETWORK_CONDITIONS_MEASURED" />
@@ -572,6 +598,11 @@
 
     <protected-broadcast android:name="android.bluetooth.input.profile.action.HANDSHAKE" />
     <protected-broadcast android:name="android.bluetooth.input.profile.action.REPORT" />
+
+    <protected-broadcast android:name="android.bluetooth.bat.profile.action.BA_STATE_CHANGED" />
+    <protected-broadcast android:name="android.bluetooth.bat.profile.action.BA_ENC_KEY_CHANGED" />
+    <protected-broadcast android:name="android.bluetooth.bat.profile.action.BA_DIV_CHANGED" />
+    <protected-broadcast android:name="android.bluetooth.bat.profile.action.BA_STR_ID_CHANGED" />
 
     <protected-broadcast android:name="android.intent.action.TWILIGHT_CHANGED" />
 
